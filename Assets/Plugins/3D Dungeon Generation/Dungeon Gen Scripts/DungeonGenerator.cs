@@ -26,8 +26,6 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] bool useLightsForDebugging;
     [Tooltip("Restores the room lights back to their normal color after the dungeon is generated.")]
     [SerializeField] bool restoreLightsAfterDebugging;
-    [Tooltip("Runs a final, intensive check to ensure no tiles overlap and logs a warning if they do.")]
-    [SerializeField] bool runFinalCollisionCheck = true;
 
     [Header("Key Bindings")]
     [Tooltip("Reloads the scene and generates a new dungeon.")]
@@ -182,7 +180,7 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
 
-        if(numBranches > 1 && validBranchCount <= 1)
+        if(numBranches > 2 && validBranchCount <= 2)
         {
             SceneManager.LoadScene("Game");
 
