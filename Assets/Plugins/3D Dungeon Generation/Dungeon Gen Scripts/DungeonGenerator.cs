@@ -1,17 +1,13 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using System.Collections.Generic;
-using System.Collections;
 
-public enum DungeonState
-{
-    inactive, generatingMain, generatingBranches, cleanup, completed
-}
+public enum DungeonState { inactive, generatingMain, generatingBranches, cleanup, completed }
 
 public class DungeonGenerator : MonoBehaviour
 {
-    #region Attributes
     [Tooltip("List of normal tiles.")]
     [SerializeField] GameObject[] tilePrefabs;
     [Tooltip("List of starting tiles.")]
@@ -24,13 +20,14 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] GameObject[] doorwayPrefabs;
 
     [Header("Debugging Options")]
+    [Tooltip("Uses box colliders to check for tile overlaps. Disable for complex tiles with non-box shapes.")]
+    [SerializeField] bool useBoxColliders;
     [Tooltip("Color codes room lights to differentiate pathways: start(blue), main path(yellow), branch path(green), exit(magenta)")]
     [SerializeField] bool useLightsForDebugging;
     [Tooltip("Restores the room lights back to their normal color after the dungeon is generated.")]
     [SerializeField] bool restoreLightsAfterDebugging;
     [Tooltip("Runs a final, intensive check to ensure no tiles overlap and logs a warning if they do.")]
     [SerializeField] bool runFinalCollisionCheck = true;
-
 
     [Header("Key Bindings")]
     [Tooltip("Reloads the scene and generates a new dungeon.")]
@@ -60,15 +57,13 @@ public class DungeonGenerator : MonoBehaviour
     private GameObject goPlayer;
 
     private Transform tileFrom, tileTo, tileRoot;
-    private Transform containter;
+    private Transform container;
 
-    private int backtrackingAttempts = 0;
-    private int maxBacktrackingAttempts = 10;
+    int attempts;
+    int maxAttempts = 50;
 
     private Color startLightColor = Color.white;
-    #endregion
 
-    #region MonoBehaviour Methods
     private void Start()
     {
         goCamera = GameObject.Find("OverheadCamera");
@@ -79,127 +74,190 @@ public class DungeonGenerator : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(reloadKey)) SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-
+        if(Input.GetKeyDown(reloadKey))
+        {
+            SceneManager.LoadScene("Game");
+        }
         if(Input.GetKeyDown(toggleMapKey))
         {
-            if(goCamera != null) goCamera.SetActive(!goCamera.activeInHierarchy);
-            if(goPlayer != null) goPlayer.SetActive(!goPlayer.activeInHierarchy);
+            goCamera.SetActive(!goCamera.activeInHierarchy);
+            goPlayer.SetActive(!goPlayer.activeInHierarchy);
         }
     }
-    #endregion
 
-    #region Tile Creation Methods
-    private Transform CreateStartTile()
+    private IEnumerator DungeonBuildCoroutine()
     {
-        int index = Random.Range(0, startPrefabs.Length);
+        goCamera.SetActive(true);
+        goPlayer.SetActive(false);
 
-        GameObject goTile = Instantiate(startPrefabs[index], Vector3.zero, Quaternion.identity, containter);
+        GameObject goContainer = new GameObject("Main Path");
 
-        goTile.name = "Start Room";
-        goTile.transform.Rotate(0, Random.Range(0, 4) * 90f, 0);
+        container = goContainer.transform;
+        container.SetParent(transform);
+        tileRoot = CreateStartTile();
 
-        if(goPlayer != null)
+        DebugRoomLighting(tileRoot, Color.cyan);
+
+        tileTo = tileRoot;
+        dungeonState = DungeonState.generatingMain;
+
+        while(generatedTiles.Count < mainLength)
         {
-            goPlayer.transform.position = goTile.transform.position;
-            goPlayer.transform.LookAt(goTile.GetComponentInChildren<Connector>().transform);
+            yield return new WaitForSeconds(constructionDelay);
+
+            tileFrom = tileTo;
+
+            if(generatedTiles.Count == mainLength - 1)
+            {
+                tileTo = CreateExitTile();
+
+                DebugRoomLighting(tileTo, Color.magenta);
+            }
+            else
+            {
+                tileTo = CreateTile();
+
+                DebugRoomLighting(tileTo, Color.yellow);
+            }
+
+            ConnectTiles();
+            CollisionCheck();
         }
 
-        generatedTiles.Add(new Tile(goTile.transform, null));
-
-        return goTile.transform;
-    }
-
-    private Transform CreateTile(Transform origin)
-    {
-        int index = Random.Range(0, tilePrefabs.Length);
-
-        GameObject goTile = Instantiate(tilePrefabs[index], Vector3.zero, Quaternion.identity, containter);
-
-        goTile.name = tilePrefabs[index].name;
-
-        generatedTiles.Add(new Tile(goTile.transform, origin));
-
-        return goTile.transform;
-    }
-
-    private Transform CreateExitTile(Transform origin)
-    {
-        int index = Random.Range(0, exitPrefabs.Length);
-
-        GameObject goTile = Instantiate(exitPrefabs[index], Vector3.zero, Quaternion.identity, containter);
-
-        goTile.name = "Exit Room";
-
-        generatedTiles.Add(new Tile(goTile.transform, origin));
-
-        return goTile.transform;
-    }
-    #endregion
-
-    #region Core Generation Logic
-    private Transform AttemptToPlaceTile(Transform fromTile, bool isExitTile)
-    {
-        List<Connector> fromConnectors = fromTile.GetComponentsInChildren<Connector>().ToList().FindAll(c => !c.isConnected);
-
-        fromConnectors = fromConnectors.OrderBy(c => Random.value).ToList();
-
-        foreach(Connector fromConnector in fromConnectors)
+        foreach(Connector connector in container.GetComponentsInChildren<Connector>())
         {
-            Transform toTile = isExitTile ? CreateExitTile(fromTile) : CreateTile(fromTile);
-
-            List<Connector> toConnectors = toTile.GetComponentsInChildren<Connector>().ToList().FindAll(c => !c.isConnected);
-
-            if(toConnectors.Count == 0)
+            if(!connector.isConnected)
             {
-                generatedTiles.RemoveAt(generatedTiles.Count - 1);
-
-                Destroy(toTile.gameObject);
-
-                continue;
+                if(!availableConnectors.Contains(connector))
+                {
+                    availableConnectors.Add(connector);
+                }
             }
-
-            Connector toConnector = toConnectors[Random.Range(0, toConnectors.Count)];
-
-            Transform connectToTransform = toConnector.transform;
-
-            connectToTransform.SetParent(fromConnector.transform);
-            toTile.SetParent(connectToTransform);
-            connectToTransform.localPosition = Vector3.zero;
-            connectToTransform.localRotation = Quaternion.identity;
-            connectToTransform.Rotate(0, 180f, 0);
-            toTile.SetParent(containter);
-
-            Physics.SyncTransforms();
-
-            if(CheckForOverlap(toTile, fromTile))
-            {
-                Destroy(toTile.gameObject);
-
-                generatedTiles.RemoveAt(generatedTiles.Count - 1);
-
-                continue;
-            }
-
-            fromConnector.isConnected = true;
-            toConnector.isConnected = true;
-
-            generatedTiles.Last().connector = fromConnector;
-
-            if(fromTile.GetComponent<BoxCollider>() == null)
-            {
-                BoxCollider box = fromTile.gameObject.AddComponent<BoxCollider>();
-
-                box.isTrigger = true;
-            }
-
-            return toTile;
         }
 
-        return null;
+        dungeonState = DungeonState.generatingBranches;
+
+        for(int b = 0; b < numBranches; b++)
+        {
+            if(availableConnectors.Count > 0)
+            {
+                goContainer = new GameObject("Branch " + (b + 1));
+
+                container = goContainer.transform;
+                container.SetParent(transform);
+
+                int availIndex = Random.Range(0, availableConnectors.Count);
+
+                tileRoot = availableConnectors[availIndex].transform.parent.parent;
+                availableConnectors.RemoveAt(availIndex);
+                tileTo = tileRoot;
+
+                for(int i = 0; i < branchLength - 1; i++)
+                {
+                    yield return new WaitForSeconds(constructionDelay);
+
+                    tileFrom = tileTo;
+                    tileTo = CreateTile();
+
+                    DebugRoomLighting(tileTo, Color.green);
+                    ConnectTiles();
+                    CollisionCheck();
+
+                    if(attempts >= maxAttempts) break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        int validBranchCount = 0;
+
+        foreach(Transform child in transform)
+        {
+            if(child.name.Contains("Branch") && child.childCount > 0)
+            {
+                validBranchCount++;
+            }
+        }
+
+        if(numBranches > 1 && validBranchCount <= 1)
+        {
+            SceneManager.LoadScene("Game");
+
+            yield break;
+        }
+
+        dungeonState = DungeonState.cleanup;
+
+        LightRestoration();
+        CleanupBoxes();
+        BlockedPassages();
+        SpawnDoors();
+
+        dungeonState = DungeonState.completed;
+
+        yield return null;
+
+        goCamera.SetActive(false);
+        goPlayer.SetActive(true);
     }
 
-    private bool CheckForOverlap(Transform tileTo, Transform tileFrom)
+    private void SpawnDoors()
+    {
+        if(doorwayPercent > 0)
+        {
+            Connector[] allConnectors = transform.GetComponentsInChildren<Connector>();
+
+            for(int i = 0; i < allConnectors.Length; i++)
+            {
+                Connector myConnector = allConnectors[i];
+
+                if(myConnector.isConnected)
+                {
+                    int roll = Random.Range(1, 101);
+
+                    if(roll <= doorwayPercent)
+                    {
+                        Vector3 halfExtents = new Vector3(myConnector.size.x, 1f, myConnector.size.x);
+                        Vector3 pos = myConnector.transform.position;
+                        Vector3 offset = Vector3.up * 0.5f;
+
+                        Collider[] hits = Physics.OverlapBox(pos + offset, halfExtents, Quaternion.identity, LayerMask.GetMask("Door"));
+
+                        if(hits.Length == 0)
+                        {
+                            int doorIndex = Random.Range(0, doorwayPrefabs.Length);
+
+                            GameObject goDoor = Instantiate(doorwayPrefabs[doorIndex], pos, myConnector.transform.rotation, myConnector.transform) as GameObject;
+
+                            goDoor.name = doorwayPrefabs[doorIndex].name;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void BlockedPassages()
+    {
+        foreach(Connector connector in transform.GetComponentsInChildren<Connector>())
+        {
+            if(!connector.isConnected)
+            {
+                Vector3 pos = connector.transform.position;
+
+                int wallIndex = Random.Range(0, blockedPrefabs.Length);
+
+                GameObject goWall = Instantiate(blockedPrefabs[wallIndex], pos, connector.transform.rotation, connector.transform) as GameObject;
+
+                goWall.name = blockedPrefabs[wallIndex].name;
+            }
+        }
+    }
+
+    private void CollisionCheck()
     {
         BoxCollider box = tileTo.GetComponent<BoxCollider>();
 
@@ -210,130 +268,153 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         Vector3 offset = (tileTo.right * box.center.x) + (tileTo.up * box.center.y) + (tileTo.forward * box.center.z);
-        Vector3 halfExtents = box.size / 2;
+        Vector3 halfExtents = box.bounds.extents;
 
-        List<Collider> hits = Physics.OverlapBox(tileTo.position + offset, halfExtents, tileTo.rotation, LayerMask.GetMask("Tile")).ToList();
+        List<Collider> hits = Physics.OverlapBox(tileTo.position + offset, halfExtents, Quaternion.identity, LayerMask.GetMask("Tile")).ToList();
 
-        if(hits.Exists(c => c.transform != tileFrom && c.transform != tileTo)) return true;
-
-        return false;
-    }
-    #endregion
-
-    #region Cleanup Methods
-    private void CleanupAndFinalize()
-    {
-        dungeonState = DungeonState.cleanup;
-
-        if(runFinalCollisionCheck) FinalCollisionCheck();
-
-        LightRestoration();
-        CleanupCollisionBoxes();
-        BlockPassages();
-        SpawnDoorways();
-
-        dungeonState = DungeonState.completed;
-    }
-
-    private void FinalCollisionCheck()
-    {
-        for(int i = 0; i < generatedTiles.Count; i++)
+        if(hits.Count > 0)
         {
-            Tile tileA = generatedTiles[i];
-
-            if(tileA.tile == null) continue;
-
-            BoxCollider boxA = tileA.tile.GetComponent<BoxCollider>();
-
-            if(boxA == null) continue;
-
-            Vector3 centerA = tileA.tile.position + (tileA.tile.right * boxA.center.x) + (tileA.tile.up * boxA.center.y) + (tileA.tile.forward * boxA.center.z);
-            Vector3 halfExtentsA = boxA.size / 2;
-
-            Collider[] hits = Physics.OverlapBox(centerA, halfExtentsA, tileA.tile.rotation, LayerMask.GetMask("Tile"));
-
-            foreach(Collider hitCollider in hits)
+            if(hits.Exists(x => x.transform != tileFrom && x.transform != tileTo))
             {
-                if(hitCollider == boxA) continue;
+                attempts++
+                    ;
+                int toIndex = generatedTiles.FindIndex(x => x.tile == tileTo);
 
-                Tile tileB = generatedTiles.Find(t => t.tile == hitCollider.transform);
-
-                if(tileB != null)
+                if(generatedTiles[toIndex].connector != null)
                 {
-                    if(tileA.origin == tileB.tile || tileB.origin == tileA.tile) continue;
+                    generatedTiles[toIndex].connector.isConnected = false;
+                }
 
-                    int indexB = generatedTiles.IndexOf(tileB);
+                generatedTiles.RemoveAt(toIndex);
 
-                    if(i < indexB)
+                DestroyImmediate(tileTo.gameObject);
+
+                if(attempts >= maxAttempts)
+                {
+                    int fromIndex = generatedTiles.FindIndex(x => x.tile == tileFrom);
+
+                    Tile myTileFrom = generatedTiles[fromIndex];
+
+                    if(tileFrom != tileRoot)
                     {
-                        Debug.LogWarning($"FINAL CHECK: Overlap detected between '{tileA.tile.name}' at {tileA.tile.position} and '{tileB.tile.name}' at {tileB.tile.position}.", tileA.tile.gameObject);
+                        if(myTileFrom.connector != null)
+                        {
+                            myTileFrom.connector.isConnected = false;
+                        }
+
+                        availableConnectors.RemoveAll(x => x.transform.parent.parent == tileFrom);
+                        generatedTiles.RemoveAt(fromIndex);
+
+                        DestroyImmediate(tileFrom.gameObject);
+
+                        if(myTileFrom.origin != tileRoot)
+                        {
+                            tileFrom = myTileFrom.origin;
+                        }
+                        else if(container.name.Contains("Main"))
+                        {
+                            if(myTileFrom.origin != null)
+                            {
+                                tileRoot = myTileFrom.origin;
+                                tileFrom = tileRoot;
+                            }
+                        }
+                        else if(availableConnectors.Count > 0)
+                        {
+                            int availIndex = Random.Range(0, availableConnectors.Count);
+
+                            tileRoot = availableConnectors[availIndex].transform.parent.parent;
+                            availableConnectors.RemoveAt(availIndex);
+                            tileFrom = tileRoot;
+                        }
+                        else
+                        {
+                            return;
+                        }
+
+                    }
+                    else if(container.name.Contains("Main"))
+                    {
+                        if(myTileFrom.origin != null)
+                        {
+                            tileRoot = myTileFrom.origin;
+                            tileFrom = tileRoot;
+                        }
+                    }
+                    else if(availableConnectors.Count > 0)
+                    {
+                        int availIndex = Random.Range(0, availableConnectors.Count);
+
+                        tileRoot = availableConnectors[availIndex].transform.parent.parent;
+                        availableConnectors.RemoveAt(availIndex);
+                        tileFrom = tileRoot;
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
-            }
-        }
-    }
 
-
-    private void CleanupCollisionBoxes()
-    {
-        foreach(Tile myTile in generatedTiles)
-        {
-            if(myTile.tile == null) continue;
-
-            BoxCollider box = myTile.tile.GetComponent<BoxCollider>();
-
-            if(box != null) Destroy(box);
-        }
-    }
-
-    private void BlockPassages()
-    {
-        foreach(Connector connector in transform.GetComponentsInChildren<Connector>())
-        {
-            if(connector != null && !connector.isConnected)
-            {
-                Vector3 pos = connector.transform.position;
-
-                int wallIndex = Random.Range(0, blockedPrefabs.Length);
-
-                GameObject goWall = Instantiate(blockedPrefabs[wallIndex], pos, connector.transform.rotation, connector.transform);
-
-                goWall.name = blockedPrefabs[wallIndex].name;
-            }
-        }
-    }
-
-    private void SpawnDoorways()
-    {
-        if(doorwayPercent <= 0) return;
-
-        foreach(var tile in generatedTiles)
-        {
-            if(tile?.connector == null) continue;
-
-            if(tile.connector.isConnected)
-            {
-                int roll = Random.Range(1, 101);
-
-                if(roll <= doorwayPercent)
+                if(tileFrom != null)
                 {
-                    Vector3 pos = tile.connector.transform.position;
+                    if(generatedTiles.Count == mainLength - 1)
+                    {
+                        tileTo = CreateExitTile();
 
-                    if(Physics.CheckBox(pos, Vector3.one * 0.5f, Quaternion.identity, LayerMask.GetMask("Door"))) continue;
+                        DebugRoomLighting(tileTo, Color.magenta);
+                    }
+                    else
+                    {
+                        tileTo = CreateTile();
 
-                    int doorIndex = Random.Range(0, doorwayPrefabs.Length);
+                        Color retryColor = container.name.Contains("Branch") ? Color.green : Color.yellow;
 
-                    Instantiate(doorwayPrefabs[doorIndex], pos, tile.connector.transform.rotation, tile.connector.transform);
+                        DebugRoomLighting(tileTo, retryColor * 2f);
+                    }
+
+                    ConnectTiles();
+                    CollisionCheck();
+                }
+            }
+            else
+            {
+                attempts = 0;
+            }
+        }
+    }
+
+    private void LightRestoration()
+    {
+        if(useLightsForDebugging && restoreLightsAfterDebugging && Application.isEditor)
+        {
+            Light[] lights = transform.GetComponentsInChildren<Light>();
+
+            foreach(Light light in lights)
+            {
+                light.color = startLightColor;
+            }
+        }
+    }
+
+    private void CleanupBoxes()
+    {
+        if(!useBoxColliders)
+        {
+            foreach(Tile myTile in generatedTiles)
+            {
+                BoxCollider box = myTile.tile.GetComponent<BoxCollider>();
+
+                if(box != null)
+                {
+                    Destroy(box);
                 }
             }
         }
     }
-    #endregion
 
-    #region Debugging Methods
     private void DebugRoomLighting(Transform tile, Color lightColor)
     {
-        if(useLightsForDebugging && Application.isEditor && tile != null)
+        if(useLightsForDebugging && Application.isEditor)
         {
             Light[] lights = tile.GetComponentsInChildren<Light>();
 
@@ -352,151 +433,106 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    private void LightRestoration()
+    private void ConnectTiles()
     {
-        if(useLightsForDebugging && restoreLightsAfterDebugging && Application.isEditor)
-        {
-            Light[] lights = transform.GetComponentsInChildren<Light>();
+        Transform connectFrom = GetRandomConnector(tileFrom);
 
-            foreach(Light light in lights)
-            {
-                if(light != null) light.color = startLightColor;
-            }
-        }
+        if(connectFrom == null) return;
+
+        Transform connectTo = GetRandomConnector(tileTo);
+
+        if(connectTo == null) return;
+
+        connectTo.SetParent(connectFrom);
+
+        tileTo.SetParent(connectTo);
+
+        connectTo.localPosition = Vector3.zero;
+        connectTo.localRotation = Quaternion.identity;
+        connectTo.Rotate(0, 180f, 0);
+
+        tileTo.SetParent(container);
+
+        connectTo.SetParent(tileTo.Find("Connectors"));
+
+        generatedTiles.Last().connector = connectFrom.GetComponent<Connector>();
     }
-    #endregion
 
-    #region Coroutine
-    IEnumerator DungeonBuildCoroutine()
+    private Transform GetRandomConnector(Transform tile)
     {
-        if(goCamera != null) goCamera.SetActive(true);
-        if(goPlayer != null) goPlayer.SetActive(false);
+        if(tile == null) return null;
 
-        dungeonState = DungeonState.generatingMain;
+        List<Connector> connectorList = tile.GetComponentsInChildren<Connector>().ToList().FindAll(x => x.isConnected == false);
 
-        GameObject goContainer = new GameObject("Main Path");
-
-        containter = goContainer.transform;
-        containter.SetParent(transform);
-
-        tileRoot = CreateStartTile();
-
-        DebugRoomLighting(tileRoot, Color.cyan);
-
-        tileTo = tileRoot;
-
-        int mainPathCount = 1;
-
-        while(mainPathCount < mainLength)
+        if(connectorList.Count > 0)
         {
-            if(constructionDelay > 0) yield return new WaitForSeconds(constructionDelay);
+            int connectorIndex = Random.Range(0, connectorList.Count);
 
-            tileFrom = tileTo;
+            connectorList[connectorIndex].isConnected = true;
 
-            bool isExit = mainPathCount == mainLength - 1;
-
-            Transform newTile = AttemptToPlaceTile(tileFrom, isExit);
-
-            if(newTile != null)
+            if(tile == tileFrom)
             {
-                tileTo = newTile;
+                BoxCollider box = tile.GetComponent<BoxCollider>();
 
-                mainPathCount++;
-
-                backtrackingAttempts = 0;
-
-                DebugRoomLighting(tileTo, isExit ? Color.magenta : Color.yellow);
-            }
-            else
-            {
-                backtrackingAttempts++;
-
-                if(backtrackingAttempts >= maxBacktrackingAttempts)
+                if(box == null)
                 {
-                    Debug.LogWarning("Max backtracking attempts reached. Halting generation.");
-
-                    break;
-                }
-
-                Tile lastGoodTile = generatedTiles.Find(t => t.tile == tileFrom);
-
-                if(lastGoodTile != null && lastGoodTile.origin != null)
-                {
-                    tileTo = lastGoodTile.origin;
-                }
-                else
-                {
-                    Debug.LogWarning("Could not backtrack further. Halting generation.");
-
-                    break;
+                    box = tile.gameObject.AddComponent<BoxCollider>();
+                    box.isTrigger = true;
                 }
             }
+
+            return connectorList[connectorIndex].transform;
         }
 
-        foreach(Tile tile in generatedTiles)
-        {
-            if(tile.tile == null) continue;
-
-            foreach(Connector connector in tile.tile.GetComponentsInChildren<Connector>())
-            {
-                if(!connector.isConnected) availableConnectors.Add(connector);
-            }
-        }
-
-        dungeonState = DungeonState.generatingBranches;
-
-        for(int j = 0; j < numBranches; j++)
-        {
-            if(availableConnectors.Count == 0) break;
-
-            goContainer = new GameObject("Branch " + (j + 1));
-
-            containter = goContainer.transform;
-            containter.SetParent(transform);
-
-            int availIndex = Random.Range(0, availableConnectors.Count);
-
-            Connector branchStartConnector = availableConnectors[availIndex];
-
-            availableConnectors.RemoveAt(availIndex);
-
-            if(branchStartConnector == null) continue;
-
-            tileRoot = branchStartConnector.transform.parent.parent;
-            tileTo = tileRoot;
-
-            for(int i = 0; i < branchLength; i++)
-            {
-                if(constructionDelay > 0) yield return new WaitForSeconds(constructionDelay);
-
-                tileFrom = tileTo;
-
-                Transform newBranchTile = AttemptToPlaceTile(tileFrom, false);
-
-                if(newBranchTile != null)
-                {
-                    tileTo = newBranchTile;
-
-                    DebugRoomLighting(tileTo, Color.green);
-
-                    foreach(Connector c in newBranchTile.GetComponentsInChildren<Connector>())
-                    {
-                        if(!c.isConnected) availableConnectors.Add(c);
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        CleanupAndFinalize();
-
-        yield return new WaitForSeconds(0.5f);
-
-        if(goCamera != null) goCamera.SetActive(false);
-        if(goPlayer != null) goPlayer.SetActive(true);
+        return null;
     }
-    #endregion
+
+    private Transform CreateTile()
+    {
+        int index = Random.Range(0, tilePrefabs.Length);
+
+        GameObject goTile = Instantiate(tilePrefabs[index], Vector3.zero, Quaternion.identity, container) as GameObject;
+
+        goTile.name = tilePrefabs[index].name;
+
+        Transform origin = generatedTiles[generatedTiles.FindIndex(x => x.tile == tileFrom)].tile;
+
+        generatedTiles.Add(new Tile(goTile.transform, origin));
+
+        return goTile.transform;
+    }
+
+    private Transform CreateExitTile()
+    {
+        int index = Random.Range(0, exitPrefabs.Length);
+
+        GameObject goTile = Instantiate(exitPrefabs[index], Vector3.zero, Quaternion.identity, container) as GameObject;
+
+        goTile.name = "Exit Room";
+
+        Transform origin = generatedTiles[generatedTiles.FindIndex(x => x.tile == tileFrom)].tile;
+
+        generatedTiles.Add(new Tile(goTile.transform, origin));
+
+        return goTile.transform;
+    }
+
+    private Transform CreateStartTile()
+    {
+        int index = Random.Range(0, startPrefabs.Length);
+
+        GameObject goTile = Instantiate(startPrefabs[index], Vector3.zero, Quaternion.identity, container) as GameObject;
+
+        goTile.name = "Start Room";
+
+        float yRot = Random.Range(0, 4) * 90f;
+
+        goTile.transform.Rotate(0, yRot, 0);
+
+        goPlayer.transform.LookAt(goTile.GetComponentInChildren<Connector>().transform);
+
+        generatedTiles.Add(new Tile(goTile.transform, null));
+
+        return goTile.transform;
+    }
 }
