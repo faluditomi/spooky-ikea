@@ -1,0 +1,24 @@
+Create Dialogue Scriptable Object:
+	1. Create Scriptable Objects Folder
+	2. Create Dialogues Folder
+	3. Right Click > Create > Dialogue
+
+Setup NPC:
+	1. Create GameObject
+	2. Add Dialogue Bubble prefab as a child
+	3. Add Collider > Is Trigger = true
+	4. Add AIConversant component
+	5. Attach Dialogue Scriptable Object
+	6. Attach Dialogue Image from Dialogue Bubble
+	7. Attach Dialogue Text from Dialogue Bubble
+
+Create a Dialogue Trigger:
+	1. Add DialogueTrigger component
+	2. Action Events > + > Name Action "SOMETHING"
+	3. On Trigger() > + > Drag an object
+	4. AIConversant component > Edit > Click on a node > Trigger Ations > + > Name Element "SOMETHING" exactly like in Step 2.
+
+Add voice audio to dialogues:
+	1. Add Audio Source component
+	2. AIConversant component > Edit > Click on a node > Drag audio to Voice Audio Clip
+	3. AIConversant component > Use Voice Audio = true > Dialogue Plays Itself = true (recommended)
