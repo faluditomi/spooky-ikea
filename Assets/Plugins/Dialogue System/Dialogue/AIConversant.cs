@@ -66,9 +66,23 @@ public class AIConversant : MonoBehaviour
         typewriterWait = new WaitForSeconds(typewriterSpeed);
     }
 
-    private void Start()
+    private void OnTriggerEnter(Collider other)
     {
-        StartDialogue();
+        if(other.CompareTag("Player"))
+        {
+            StartDialogue();
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.CompareTag("Player"))
+        {
+            if(isDialoguing)
+            {
+                StartCoroutine(QuitDialogue());
+            }
+        }
     }
     #endregion
 
@@ -180,7 +194,7 @@ public class AIConversant : MonoBehaviour
 
     private IEnumerator QuitDialogue()
     {
-        yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
 
         dialogueText.text = "";
 
@@ -189,6 +203,8 @@ public class AIConversant : MonoBehaviour
         StartCoroutine(FadeOutImageBehaviour(dialogueImage));
 
         currentNode = null;
+
+        yield return null;
     }
     #endregion
 
@@ -206,6 +222,8 @@ public class AIConversant : MonoBehaviour
 
         foreach(char c in fullText)
         {
+            if(!isDialoguing) yield break;
+
             stringBuilder.Append(c);
 
             dialogueText.text = stringBuilder.ToString();
