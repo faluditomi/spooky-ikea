@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
     // Internal state for smooth transitions
     private Coroutine crouchCoroutine;
     private Vector3 originalLocalScale;
-    private bool isCrouched = false;
+    private Collider myCollider;
 
     void Awake()
     {
@@ -43,6 +43,8 @@ public class PlayerController : MonoBehaviour
 
         // store the original scale so we can smoothly return to it
         originalLocalScale = transform.localScale;
+
+        myCollider = GetComponent<Collider>();
 
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -127,6 +129,7 @@ public class PlayerController : MonoBehaviour
     }
 
         //TODO: crouch
+        //      -> crouching should cancel sprinting and the other way around
         //      -> lower view when crouching
         //      -> go under low things when crouching (like repo)
     private void Crouch(InputAction.CallbackContext input)
@@ -202,27 +205,33 @@ public class PlayerController : MonoBehaviour
     private IEnumerator ScaleTo(Vector3 targetScale, float duration, bool targetIsCrouched)
     {
         Vector3 startScale = transform.localScale;
-        if (Mathf.Approximately(duration, 0f))
+
+        if(Mathf.Approximately(duration, 0f))
         {
             transform.localScale = targetScale;
-            isCrouched = targetIsCrouched;
             crouchCoroutine = null;
             yield break;
         }
 
         float elapsed = 0f;
-        while (elapsed < duration)
+        while(elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
-            // smoothstep for nicer interpolation
+
+            //smoothstep for nicer interpolation
             float eased = t * t * (3f - 2f * t);
-            transform.localScale = Vector3.Lerp(startScale, targetScale, eased);
+            Vector3 newScale = Vector3.Lerp(startScale, targetScale, eased);
+            transform.localScale = newScale;
+
+            //after scaling, adjust position so feet remain on the ground.
+            float feetY = myCollider.bounds.extents.y;
+            transform.position = new Vector3(transform.position.x, feetY, transform.position.z);
+
             yield return null;
         }
 
-    transform.localScale = targetScale;
-    isCrouched = targetIsCrouched;
-    crouchCoroutine = null;
+        transform.localScale = targetScale;
+        crouchCoroutine = null;
     }
 }
