@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{84f4c757-4fa6-486a-afdc-19c8335e2dfb}">
 		<property name="name">
-			<value>door_open</value>
+			<value>toilet_open</value>
 		</property>
 		<property name="outputFormat">
 			<value>1</value>
@@ -141,7 +141,7 @@
 	</object>
 	<object class="SingleSound" id="{c491c86d-78b7-4148-9d40-1e39ee3ce51a}">
 		<property name="start">
-			<value>0.34999999999999998</value>
+			<value>1.1000000000000001</value>
 		</property>
 		<property name="length">
 			<value>0.55000000000000004</value>
@@ -172,10 +172,10 @@
 	</object>
 	<object class="MultiSound" id="{1dc79671-f37b-49eb-a8f6-6c44ef24b4b1}">
 		<property name="start">
-			<value>0.45000000000000001</value>
+			<value>0.15000000000000002</value>
 		</property>
 		<property name="length">
-			<value>3.1467812500000001</value>
+			<value>0.29999999999999999</value>
 		</property>
 		<relationship name="fadeInCurve">
 			<destination>{3e4dd47e-745a-4ff3-a758-6ebcb8757dc5}</destination>
@@ -185,7 +185,6 @@
 		</relationship>
 		<relationship name="sounds">
 			<destination>{7045094c-de4c-48a8-be38-627cacec48c8}</destination>
-			<destination>{fb4f523f-52d6-4648-a0c6-470b5ac392ee}</destination>
 		</relationship>
 	</object>
 	<object class="EventMixerGroup" id="{b0e7dcdb-53ad-46b8-bdac-f3784e87800c}">
@@ -271,15 +270,9 @@
 			<destination>{24b2f3ab-8d71-4e13-bc54-eef4c5b31247}</destination>
 		</relationship>
 	</object>
-	<object class="SingleSound" id="{fb4f523f-52d6-4648-a0c6-470b5ac392ee}">
-		<relationship name="audioFile">
-			<destination>{791216b7-99ac-4a86-bbd9-4c7cc17e4bd8}</destination>
-		</relationship>
-	</object>
 	<object class="MixerBusEffectChain" id="{063fb38c-12e9-4682-904f-bfef80fb5ed0}">
 		<relationship name="effects">
 			<destination>{46b243b2-0413-4e91-8edc-82e95dc99005}</destination>
-			<destination>{04d25143-8e65-4b8f-86bf-d21ff983437f}</destination>
 			<destination>{58a97466-045f-449a-b06e-8d2c0528ec8a}</destination>
 			<destination>{ddb0f080-20fd-42e8-93e4-cf21b237d646}</destination>
 		</relationship>
@@ -298,7 +291,7 @@
 	<object class="MixerBusFader" id="{eba3cf7b-191a-47ce-b06a-ff6e52af4268}" />
 	<object class="AutomationPoint" id="{08907fec-812a-41ba-b8f7-f1fa23581738}">
 		<property name="position">
-			<value>0.45000000000000001</value>
+			<value>1.2</value>
 		</property>
 		<property name="value">
 			<value>1</value>
@@ -309,7 +302,7 @@
 	</object>
 	<object class="AutomationPoint" id="{b72e6b9f-63c3-4374-987f-8fc4e3b392dc}">
 		<property name="position">
-			<value>0.90000000000000002</value>
+			<value>1.6499999999999997</value>
 		</property>
 		<property name="value">
 			<value>0</value>
@@ -329,7 +322,7 @@
 	</object>
 	<object class="AutomationPoint" id="{62ca350d-1c70-4970-ab70-8188f9b6a1c5}">
 		<property name="position">
-			<value>0.45000000000000001</value>
+			<value>0.15000000000000002</value>
 		</property>
 		<property name="value">
 			<value>0</value>
@@ -340,7 +333,7 @@
 	</object>
 	<object class="AutomationPoint" id="{e364e633-2369-454d-b0d3-6619718d347b}">
 		<property name="position">
-			<value>0.70000000000000007</value>
+			<value>0.35000000000000342</value>
 		</property>
 		<property name="value">
 			<value>1</value>
@@ -348,7 +341,7 @@
 	</object>
 	<object class="AutomationPoint" id="{402f3150-14fa-42d8-acbe-10e42652300c}">
 		<property name="position">
-			<value>1.6000000000000001</value>
+			<value>0.2499999999999965</value>
 		</property>
 		<property name="value">
 			<value>1</value>
@@ -359,27 +352,13 @@
 	</object>
 	<object class="AutomationPoint" id="{4b8848d9-7146-4297-a4c3-d0f84c048084}">
 		<property name="position">
-			<value>3.5967812500000003</value>
+			<value>0.4499999999999999</value>
 		</property>
 		<property name="value">
 			<value>0</value>
 		</property>
 	</object>
 	<object class="MixerBusFader" id="{46b243b2-0413-4e91-8edc-82e95dc99005}" />
-	<object class="SFXReverbEffect" id="{04d25143-8e65-4b8f-86bf-d21ff983437f}">
-		<property name="decayTime">
-			<value>3500</value>
-		</property>
-		<property name="HFDecayRatio">
-			<value>73.5</value>
-		</property>
-		<property name="highCut">
-			<value>800</value>
-		</property>
-		<property name="earlyLateMix">
-			<value>77</value>
-		</property>
-	</object>
 	<object class="CompressorEffect" id="{58a97466-045f-449a-b06e-8d2c0528ec8a}">
 		<property name="threshold">
 			<value>-32</value>
