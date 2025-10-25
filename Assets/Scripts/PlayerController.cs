@@ -225,6 +225,7 @@ public class PlayerController : MonoBehaviour
             transform.localScale = newScale;
 
             //after scaling, adjust position so feet remain on the ground.
+            //TODO: make this work on any y
             float feetY = myCollider.bounds.extents.y;
             transform.position = new Vector3(transform.position.x, feetY, transform.position.z);
 

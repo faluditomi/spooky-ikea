@@ -25,11 +25,6 @@ public class PlayerStateMachine : MonoBehaviour
         playerController = GetComponent<PlayerController>();
     }
 
-    void Update()
-    {
-        Debug.Log(currentState);
-    }
-
     public void SetState(PlayerState state)
     {
         switch(currentState)
