@@ -57,10 +57,22 @@ public class DungeonGenerator : MonoBehaviour
     private Transform tileFrom, tileTo, tileRoot;
     private Transform container;
 
+
+    [Header("Guard :)")]
+    [SerializeField]
+    private Transform guardWaypointContainer;
+    
+    private GameObject guardWaypointPrefab;
+
     int attempts;
     int maxAttempts = 50;
 
     private Color startLightColor = Color.white;
+
+    private void Awake()
+    {
+        guardWaypointPrefab = Resources.Load<GameObject>("Prefabs/Guard/Waypoint");
+    }
 
     private void Start()
     {
@@ -104,13 +116,13 @@ public class DungeonGenerator : MonoBehaviour
         tileTo = tileRoot;
         dungeonState = DungeonState.generatingMain;
 
-        while(generatedTiles.Count < mainLength)
+        while (generatedTiles.Count < mainLength)
         {
             yield return new WaitForSeconds(constructionDelay);
 
             tileFrom = tileTo;
 
-            if(generatedTiles.Count == mainLength - 1)
+            if (generatedTiles.Count == mainLength - 1)
             {
                 tileTo = CreateExitTile();
 
@@ -127,11 +139,11 @@ public class DungeonGenerator : MonoBehaviour
             CollisionCheck();
         }
 
-        foreach(Connector connector in container.GetComponentsInChildren<Connector>())
+        foreach (Connector connector in container.GetComponentsInChildren<Connector>())
         {
-            if(!connector.isConnected)
+            if (!connector.isConnected)
             {
-                if(!availableConnectors.Contains(connector))
+                if (!availableConnectors.Contains(connector))
                 {
                     availableConnectors.Add(connector);
                 }
@@ -140,9 +152,9 @@ public class DungeonGenerator : MonoBehaviour
 
         dungeonState = DungeonState.generatingBranches;
 
-        for(int b = 0; b < numBranches; b++)
+        for (int b = 0; b < numBranches; b++)
         {
-            if(availableConnectors.Count > 0)
+            if (availableConnectors.Count > 0)
             {
                 goContainer = new GameObject("Branch " + (b + 1));
 
@@ -155,7 +167,7 @@ public class DungeonGenerator : MonoBehaviour
                 availableConnectors.RemoveAt(availIndex);
                 tileTo = tileRoot;
 
-                for(int i = 0; i < branchLength - 1; i++)
+                for (int i = 0; i < branchLength - 1; i++)
                 {
                     yield return new WaitForSeconds(constructionDelay);
 
@@ -166,7 +178,7 @@ public class DungeonGenerator : MonoBehaviour
                     ConnectTiles();
                     CollisionCheck();
 
-                    if(attempts >= maxAttempts) break;
+                    if (attempts >= maxAttempts) break;
                 }
             }
             else
@@ -177,15 +189,15 @@ public class DungeonGenerator : MonoBehaviour
 
         int validBranchCount = 0;
 
-        foreach(Transform child in transform)
+        foreach (Transform child in transform)
         {
-            if(child.name.Contains("Branch") && child.childCount > 0)
+            if (child.name.Contains("Branch") && child.childCount > 0)
             {
                 validBranchCount++;
             }
         }
 
-        if(numBranches > 2 && validBranchCount <= 2)
+        if (numBranches > 2 && validBranchCount <= 2)
         {
             SceneManager.LoadScene("Game");
 
@@ -198,6 +210,7 @@ public class DungeonGenerator : MonoBehaviour
         CleanupBoxes();
         BlockedPassages();
         SpawnDoors();
+        SpawnGuardWaypoints();
 
         dungeonState = DungeonState.completed;
 
@@ -205,6 +218,21 @@ public class DungeonGenerator : MonoBehaviour
 
         //goCamera.SetActive(false);
         //goPlayer.SetActive(true);
+    }
+    
+    private void SpawnGuardWaypoints()
+    {
+        Connector[] allConnectors = transform.GetComponentsInChildren<Connector>();
+
+        for(int i = 0; i < allConnectors.Length; i++)
+        {
+            Connector myConnector = allConnectors[i];
+
+            if(myConnector.isConnected)
+            {
+                Instantiate(guardWaypointPrefab, myConnector.transform.position, Quaternion.identity, guardWaypointContainer);
+            }
+        }
     }
 
     private void SpawnDoors()
