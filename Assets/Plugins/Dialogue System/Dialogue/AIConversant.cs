@@ -65,25 +65,6 @@ public class AIConversant : MonoBehaviour
 
         typewriterWait = new WaitForSeconds(typewriterSpeed);
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.CompareTag("Player"))
-        {
-            StartDialogue();
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if(other.CompareTag("Player"))
-        {
-            if(isDialoguing)
-            {
-                StartCoroutine(QuitDialogue());
-            }
-        }
-    }
     #endregion
 
     //Triggers actions, if there are any, when dialoguing.
@@ -116,6 +97,14 @@ public class AIConversant : MonoBehaviour
         StartCoroutine(ProcessNode());
     }
 
+    public void QuitDialogue()
+    {
+        if(isDialoguing)
+        {
+            StartCoroutine(QuitDialogueCoroutine());
+        }
+    }
+
     private void Next()
     {
         dialogue.GetChildren(currentNode, children);
@@ -128,7 +117,7 @@ public class AIConversant : MonoBehaviour
         }
         else
         {
-            StartCoroutine(QuitDialogue());
+            StartCoroutine(QuitDialogueCoroutine());
         }
     }
 
@@ -186,13 +175,13 @@ public class AIConversant : MonoBehaviour
         }
         else
         {
-            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.E));
         }
 
         Next();
     }
 
-    private IEnumerator QuitDialogue()
+    private IEnumerator QuitDialogueCoroutine()
     {
         //yield return new WaitForEndOfFrame();
 
