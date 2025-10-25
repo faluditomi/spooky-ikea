@@ -33,6 +33,9 @@
 		<relationship name="timeline">
 			<destination>{cadc5a9d-5928-4d23-8467-b9caacbb8abf}</destination>
 		</relationship>
+		<relationship name="banks">
+			<destination>{2d7a923d-b2db-45e1-a218-a047f37aa5da}</destination>
+		</relationship>
 	</object>
 	<object class="EventMixer" id="{e2871480-c8ff-444f-abc2-6c418bd646a7}">
 		<relationship name="masterBus">
@@ -324,17 +327,26 @@
 		</property>
 	</object>
 	<object class="MultibandEqEffect" id="{ddb0f080-20fd-42e8-93e4-cf21b237d646}">
+		<property name="filterTypeC">
+			<value>9</value>
+		</property>
 		<property name="filterTypeD">
 			<value>9</value>
 		</property>
 		<property name="frequencyA">
 			<value>8841.00391</value>
 		</property>
+		<property name="frequencyC">
+			<value>1003.89966</value>
+		</property>
 		<property name="frequencyD">
 			<value>207.88681</value>
 		</property>
 		<property name="qualityA">
 			<value>0.751586199</value>
+		</property>
+		<property name="gainC">
+			<value>3.62068892</value>
 		</property>
 		<property name="gainD">
 			<value>6.72413731</value>
