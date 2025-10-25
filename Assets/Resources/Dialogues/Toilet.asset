@@ -79,7 +79,7 @@ MonoBehaviour:
   rect:
     serializedVersion: 2
     x: 0
-    y: 0
+    y: -0
     width: 200
     height: 100
   voiceAudioClip: {fileID: 0}
