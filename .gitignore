@@ -35,8 +35,8 @@
 # FMOD
 #############
 # FMOD banks and cache
-# [Aa]ssets/StreamingAssets/*.bank
-# [Aa]ssets/StreamingAssets/*.strings.bank
+[Aa]ssets/StreamingAssets/*.bank
+[Aa]ssets/StreamingAssets/*.strings.bank
 [Aa]ssets/Plugins/FMOD/lib/*
 [Aa]ssets/Plugins/FMOD/Cache/
 [Aa]ssets/Plugins/FMOD/Cache.meta

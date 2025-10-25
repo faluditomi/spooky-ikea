@@ -53,7 +53,6 @@ public class PlayerDetection : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
-        //TODO: hearing distance radius
         //TODO: crouch -> hold ctrl, separate crouch speed, go under low things when crouching (like repo) 
         if ((Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius) ||
         (distanceToPlayer < hearingRadius && playerController.GetIsSprinting()))
