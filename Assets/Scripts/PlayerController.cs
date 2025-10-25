@@ -101,7 +101,7 @@ public class PlayerController : MonoBehaviour
         //once the cinemachine scripts have had time to run.
         transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
 
-        //Once the guard is rotated properly, we have to reset the follow target and thus
+        //Once the player is rotated properly, we have to reset the follow target and thus
         //align the camera.
         followTarget.localEulerAngles = new Vector3(xRotation, 0f, 0f);
 

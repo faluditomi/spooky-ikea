@@ -14,6 +14,8 @@ public class PlayerDetectionEditor : Editor
 
         Handles.DrawWireArc(playerDetection.transform.position, Vector3.up, Vector3.forward, 360, playerDetection.GetViewRadius());
 
+        Handles.DrawWireArc(playerDetection.transform.position, Vector3.up, Vector3.forward, 360, playerDetection.GetViewRadius());
+
         Vector3 viewAngleA = playerDetection.VectorFromAngle(-playerDetection.GetViewAngle() / 2f, false);
 
         Vector3 viewAngleB = playerDetection.VectorFromAngle(playerDetection.GetViewAngle() / 2f, false);
@@ -21,5 +23,9 @@ public class PlayerDetectionEditor : Editor
         Handles.DrawLine(playerDetection.transform.position, playerDetection.transform.position + viewAngleA * playerDetection.GetViewRadius());
 
         Handles.DrawLine(playerDetection.transform.position, playerDetection.transform.position + viewAngleB * playerDetection.GetViewRadius());
+
+        Handles.color = Color.blue;
+
+        Handles.DrawWireArc(playerDetection.transform.position, Vector3.up, Vector3.forward, 360, playerDetection.GetHearingRadius());
     }
 }
