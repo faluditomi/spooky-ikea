@@ -51,8 +51,8 @@ public class DungeonGenerator : MonoBehaviour
     public List<Tile> generatedTiles = new List<Tile>();
     private List<Connector> availableConnectors = new List<Connector>();
 
-    private GameObject goCamera;
-    private GameObject goPlayer;
+    //private GameObject goCamera;
+    //private GameObject goPlayer;
 
     private Transform tileFrom, tileTo, tileRoot;
     private Transform container;
@@ -64,29 +64,34 @@ public class DungeonGenerator : MonoBehaviour
 
     private void Start()
     {
-        goCamera = GameObject.Find("OverheadCamera");
-        goPlayer = GameObject.FindWithTag("Player");
+        //goCamera = GameObject.Find("OverheadCamera");
+        //goPlayer = GameObject.FindWithTag("Player");
 
         StartCoroutine(DungeonBuildCoroutine());
     }
 
-    private void Update()
+    //private void Update()
+    //{
+    //    if(Input.GetKeyDown(reloadKey))
+    //    {
+    //        SceneManager.LoadScene("Game");
+    //    }
+    //    if(Input.GetKeyDown(toggleMapKey))
+    //    {
+    //        goCamera.SetActive(!goCamera.activeInHierarchy);
+    //        goPlayer.SetActive(!goPlayer.activeInHierarchy);
+    //    }
+    //}
+
+    public void GenerateDungeon()
     {
-        if(Input.GetKeyDown(reloadKey))
-        {
-            SceneManager.LoadScene("Game");
-        }
-        if(Input.GetKeyDown(toggleMapKey))
-        {
-            goCamera.SetActive(!goCamera.activeInHierarchy);
-            goPlayer.SetActive(!goPlayer.activeInHierarchy);
-        }
+        StartCoroutine(DungeonBuildCoroutine());
     }
 
     private IEnumerator DungeonBuildCoroutine()
     {
-        goCamera.SetActive(true);
-        goPlayer.SetActive(false);
+        //goCamera.SetActive(true);
+        //goPlayer.SetActive(false);
 
         GameObject goContainer = new GameObject("Main Path");
 
@@ -198,8 +203,8 @@ public class DungeonGenerator : MonoBehaviour
 
         yield return null;
 
-        goCamera.SetActive(false);
-        goPlayer.SetActive(true);
+        //goCamera.SetActive(false);
+        //goPlayer.SetActive(true);
     }
 
     private void SpawnDoors()
@@ -527,7 +532,7 @@ public class DungeonGenerator : MonoBehaviour
 
         goTile.transform.Rotate(0, yRot, 0);
 
-        goPlayer.transform.LookAt(goTile.GetComponentInChildren<Connector>().transform);
+        //goPlayer.transform.LookAt(goTile.GetComponentInChildren<Connector>().transform);
 
         generatedTiles.Add(new Tile(goTile.transform, null));
 
