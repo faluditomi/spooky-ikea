@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{eecd0d64-f882-4d6c-8bd9-fd0f30e48c46}">
+		<property name="assetPath">
+			<value>SpookyBlankJam_SFX_troll-notice-002.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>4.702040816326531</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{ea5edb97-0df3-41a7-bf7b-875663fe0abc}</destination>
+		</relationship>
+	</object>
+</objects>
