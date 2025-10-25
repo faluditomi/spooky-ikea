@@ -52,6 +52,7 @@
 *.sln.iml
 
 # Visual Studio
+.vs/
 *.csproj
 *.unityproj
 *.sln
