@@ -53,14 +53,24 @@ public class PlayerDetection : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
-        //TODO: crouch -> hold ctrl, separate crouch speed, go under low things when crouching (like repo) 
-        if ((Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius) ||
-        (distanceToPlayer < hearingRadius && playerController.GetIsSprinting()))
+        if (Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius)
         {
             return !Physics.Raycast(transform.position, vectorToPlayer, distanceToPlayer, obstacleMask);
         }
 
         return false;
+    }
+    
+    public bool IsPlayerMakingNoise()
+    {
+        if(!playerController.GetIsSprinting())
+        {
+            return false;
+        }
+        
+        float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
+
+        return distanceToPlayer < hearingRadius;
     }
 
     //Returns the vector that is at a certain angle from the guard.

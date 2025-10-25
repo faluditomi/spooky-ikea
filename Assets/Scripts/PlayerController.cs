@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,12 +14,16 @@ public class PlayerController : MonoBehaviour
 
     private float yRotation = 0f;
     private float xRotation = 0f;
+    [Tooltip("Sensitivity of mouse look rotation.")]
+    [SerializeField] private float mouseSensitivity = 0.2f;
     [Tooltip("The speed at which the player can move quietly.")]
     [SerializeField] private float sneakSpeed = 1f;
     [Tooltip("The speed that the player moves at when they are sprinting and making noise.")]
     [SerializeField] private float sprintSpeed = 3f;
 
     private bool isSprinting;
+
+    private bool isCrouching;
 
     void Awake()
     {
@@ -45,6 +50,9 @@ public class PlayerController : MonoBehaviour
 
         input.Gameplay.Look.performed += Look;
         input.Gameplay.Look.canceled += Look;
+
+        input.Gameplay.Crouch.performed += Crouch;
+        input.Gameplay.Crouch.canceled += Crouch;
     }
 
     void OnDisable()
@@ -59,6 +67,9 @@ public class PlayerController : MonoBehaviour
 
         input.Gameplay.Look.performed -= Look;
         input.Gameplay.Look.canceled -= Look;
+
+        input.Gameplay.Crouch.performed -= Crouch;
+        input.Gameplay.Crouch.canceled -= Crouch;
     }
 
     private void FixedUpdate()
@@ -85,13 +96,40 @@ public class PlayerController : MonoBehaviour
 
     private void Sprint(InputAction.CallbackContext input)
     {
-        if(input.performed)
+        if (input.performed)
         {
             isSprinting = true;
         }
-        else if(input.canceled)
+        else if (input.canceled)
         {
             isSprinting = false;
+        }
+    }
+
+        //TODO: crouch
+        //      -> separate crouch speed 
+        //      -> lower view when crouching
+        //      -> go under low things when crouching (like repo)
+        //      -> crouching should cancel sprinting and the other way around
+    private void Crouch(InputAction.CallbackContext input)
+    {
+        if(input.interaction is PressInteraction)
+        {
+            if (input.performed)
+            {
+                isCrouching = !isCrouching;
+            }
+        }
+        else if(input.interaction is HoldInteraction)
+        {
+            if(input.performed)
+            {
+                isCrouching = true;
+            }
+            else if(input.canceled)
+            {
+                isCrouching = false;
+            }
         }
     }
 
@@ -105,11 +143,11 @@ public class PlayerController : MonoBehaviour
         //align the camera.
         followTarget.localEulerAngles = new Vector3(xRotation, 0f, 0f);
 
-        xRotation += -input.ReadValue<Vector2>().y;
+        xRotation += -input.ReadValue<Vector2>().y * mouseSensitivity;
 
-        xRotation = Mathf.Clamp(xRotation, -25f, 70f);
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        yRotation += input.ReadValue<Vector2>().x;
+        yRotation += input.ReadValue<Vector2>().x * mouseSensitivity;
     }
 
     public bool GetIsSprinting()
