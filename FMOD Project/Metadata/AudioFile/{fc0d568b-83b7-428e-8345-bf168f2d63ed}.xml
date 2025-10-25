@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{fc0d568b-83b7-428e-8345-bf168f2d63ed}">
+		<property name="assetPath">
+			<value>30212__tweeterdj__peeing-into-toilet.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>18.958639455782311</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{ea5edb97-0df3-41a7-bf7b-875663fe0abc}</destination>
+		</relationship>
+	</object>
+</objects>

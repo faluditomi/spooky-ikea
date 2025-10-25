@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{c5cb5a96-f546-490f-83d5-543edbb70733}">
+		<property name="assetPath">
+			<value>SpookyBlankJam_SFX_player-footstep-002.ogg</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.15072916666666666</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{ea5edb97-0df3-41a7-bf7b-875663fe0abc}</destination>
+		</relationship>
+	</object>
+</objects>

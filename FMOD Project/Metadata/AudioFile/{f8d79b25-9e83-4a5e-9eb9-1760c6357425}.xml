@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f8d79b25-9e83-4a5e-9eb9-1760c6357425}">
+		<property name="assetPath">
+			<value>SpookyBlankJam_AMB_horrorlayer_01.ogg</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>38.760989583333334</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{ea5edb97-0df3-41a7-bf7b-875663fe0abc}</destination>
+		</relationship>
+	</object>
+</objects>
