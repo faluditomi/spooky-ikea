@@ -8,7 +8,7 @@ public class PlayerDetection : MonoBehaviour
 {
     private GuardStateMachine myStateMachine;
 
-    private PlayerController playerController;
+    private PlayerStateMachine playerStateMachine;
 
     [Tooltip("The layers that guard can't see through.")]
     [SerializeField] private LayerMask obstacleMask;
@@ -34,7 +34,7 @@ public class PlayerDetection : MonoBehaviour
 
     private void Start()
     {
-        playerController = myStateMachine.GetPlayer().GetComponent<PlayerController>();
+        playerStateMachine = myStateMachine.GetPlayer().GetComponent<PlayerStateMachine>();
 
         viewMesh = new Mesh();
 
@@ -63,7 +63,7 @@ public class PlayerDetection : MonoBehaviour
     
     public bool IsPlayerMakingNoise()
     {
-        if(!playerController.GetIsSprinting())
+        if(!playerStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Sprinting))
         {
             return false;
         }
