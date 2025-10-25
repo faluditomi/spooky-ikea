@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.AI.Navigation;
 using UnityEngine;
 
@@ -38,7 +36,17 @@ public class GuardSpawner : MonoBehaviour
             
             int randomNumber = Random.Range(0, spawnPoints.Count);
             Transform spawnPoint = spawnPoints[randomNumber];
-            Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity, transform);
+            GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity, transform);
+
+            Transform relevantMapBranch = spawnPoint.parent.parent.parent;
+
+            if(relevantMapBranch.childCount > 0)
+            {
+                Transform startWaypoint = relevantMapBranch.GetChild(0).GetChild(2).Find("Enemy Spawn");
+                Transform endWaypoint = relevantMapBranch.GetChild(relevantMapBranch.childCount - 1).GetChild(2).Find("Enemy Spawn");
+                enemy.GetComponent<GuardPatrolBehaviour>().SetTwoWaypoints(startWaypoint, endWaypoint);
+            }
+
             spawnPoints.Remove(spawnPoint);
         }
     }

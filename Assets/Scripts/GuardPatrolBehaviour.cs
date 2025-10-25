@@ -122,7 +122,7 @@ public class GuardPatrolBehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(detectionCheckFrequency);
 
-        if(myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoise())
+        if (myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoise())
         {
             myStateMachine.SetState(GuardStateMachine.GuardState.Chasing);
         }
@@ -130,5 +130,12 @@ public class GuardPatrolBehaviour : MonoBehaviour
         {
             StartCoroutine(PlayerDetectionBehaviour());
         }
+    }
+    
+    public void SetTwoWaypoints(Transform first, Transform second)
+    {
+        waypoints.Clear();
+        waypoints.Add(first);
+        waypoints.Add(second);
     }
 }
