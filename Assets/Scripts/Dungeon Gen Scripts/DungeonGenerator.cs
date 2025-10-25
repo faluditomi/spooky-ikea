@@ -53,22 +53,10 @@ public class DungeonGenerator : MonoBehaviour
     private Transform tileFrom, tileTo, tileRoot;
     private Transform container;
 
-
-    [Header("Guard :)")]
-    [SerializeField]
-    private Transform guardWaypointContainer;
-    
-    private GameObject guardWaypointPrefab;
-
     int attempts;
     int maxAttempts = 50;
 
     private Color startLightColor = Color.white;
-
-    private void Awake()
-    {
-        guardWaypointPrefab = Resources.Load<GameObject>("Prefabs/Guard/Waypoint");
-    }
 
     private void Start()
     {
@@ -189,7 +177,6 @@ public class DungeonGenerator : MonoBehaviour
         LightRestoration();
         CleanupBoxes();
         BlockedPassages();
-        SpawnGuardWaypoints();
 
         dungeonState = DungeonState.completed;
 
@@ -212,21 +199,6 @@ public class DungeonGenerator : MonoBehaviour
     {
         loadingScreen.SetActive(false);
         playerController.UnlockMovement();
-    }
-    
-    private void SpawnGuardWaypoints()
-    {
-        Connector[] allConnectors = transform.GetComponentsInChildren<Connector>();
-
-        for(int i = 0; i < allConnectors.Length; i++)
-        {
-            Connector myConnector = allConnectors[i];
-
-            if(myConnector.isConnected)
-            {
-                Instantiate(guardWaypointPrefab, myConnector.transform.position, Quaternion.identity, guardWaypointContainer);
-            }
-        }
     }
 
     private void BlockedPassages()

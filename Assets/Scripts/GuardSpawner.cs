@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.AI.Navigation;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GuardSpawner : MonoBehaviour
@@ -30,6 +31,8 @@ public class GuardSpawner : MonoBehaviour
             spawnPoints.Add(gameObject.transform);
         }
         
+        List<Transform> waypoints = new List<Transform>(spawnPoints);
+        
         for(int i = 0; i < numberOfEnemies; i++)
         {
             if(spawnPoints.Count <= 0) break;
@@ -38,14 +41,11 @@ public class GuardSpawner : MonoBehaviour
             Transform spawnPoint = spawnPoints[randomNumber];
             GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity, transform);
 
-            Transform relevantMapBranch = spawnPoint.parent.parent.parent;
-
-            if(relevantMapBranch.childCount > 0)
-            {
-                Transform startWaypoint = relevantMapBranch.GetChild(0).GetChild(2).Find("Enemy Spawn");
-                Transform endWaypoint = relevantMapBranch.GetChild(relevantMapBranch.childCount - 1).GetChild(2).Find("Enemy Spawn");
-                enemy.GetComponent<GuardPatrolBehaviour>().SetTwoWaypoints(startWaypoint, endWaypoint);
-            }
+            List<Transform> potentialEndWaypoints = new List<Transform>(waypoints);
+            potentialEndWaypoints.Remove(spawnPoint);
+            randomNumber = Random.Range(0, potentialEndWaypoints.Count);
+            Transform endWaypoint = potentialEndWaypoints[randomNumber];
+            enemy.GetComponent<GuardPatrolBehaviour>().SetTwoWaypoints(spawnPoint, endWaypoint);
 
             spawnPoints.Remove(spawnPoint);
         }

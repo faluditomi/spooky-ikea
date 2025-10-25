@@ -10,11 +10,15 @@ public class PeeTrigger : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     private AIConversant aiConversant;
 
+    private GuardSpawner guardSpawner;
+
     private bool inRange = false;
 
     private void Awake()
     {
         aiConversant = GetComponent<AIConversant>();
+        
+        guardSpawner = FindFirstObjectByType<GuardSpawner>();
     }
 
     private void Update()
@@ -57,6 +61,9 @@ public class PeeTrigger : MonoBehaviour
 
         peeParticles.Stop();
         playerGameObject.transform.position = new Vector3(0f, 1f, 4f);
+        //generate map
+        //dungeonGenerator.GenerateDungeon();
+        guardSpawner.InitialiseGuardSpawner();
         playerController.UnlockMovement();
         premadeMap.SetActive(false);
     }

@@ -32,8 +32,6 @@ public class RandomDecor : MonoBehaviour
             GameObject goDecor = Instantiate(decorPrefabs[decorIndex], transform.position, transform.rotation, transform) as GameObject;
 
             goDecor.name = decorPrefabs[decorIndex].name;
-
-            guardSpawner.InitialiseGuardSpawner();
         }
     }
 }
