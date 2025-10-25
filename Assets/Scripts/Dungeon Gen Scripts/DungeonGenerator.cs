@@ -26,12 +26,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] bool useLightsForDebugging;
     [Tooltip("Restores the room lights back to their normal color after the dungeon is generated.")]
     [SerializeField] bool restoreLightsAfterDebugging;
-
-    [Header("Key Bindings")]
-    [Tooltip("Reloads the scene and generates a new dungeon.")]
-    [SerializeField] KeyCode reloadKey = KeyCode.Backspace; //temp
-    [Tooltip("Toggles the view between player and dungeon overview camera.")]
-    [SerializeField] KeyCode toggleMapKey = KeyCode.M; //temp
+    [SerializeField] private GameObject loadingScreen;
 
     [Header("Generation Limits")]
     [Tooltip("Length of the main path.")]
@@ -51,8 +46,9 @@ public class DungeonGenerator : MonoBehaviour
     public List<Tile> generatedTiles = new List<Tile>();
     private List<Connector> availableConnectors = new List<Connector>();
 
-    //private GameObject goCamera;
     //private GameObject goPlayer;
+
+    [SerializeField] private PlayerController playerController;
 
     private Transform tileFrom, tileTo, tileRoot;
     private Transform container;
@@ -76,33 +72,17 @@ public class DungeonGenerator : MonoBehaviour
 
     private void Start()
     {
-        //goCamera = GameObject.Find("OverheadCamera");
+        LoadingScreen();
+
+        //lock player movement and camera
+
         //goPlayer = GameObject.FindWithTag("Player");
 
         StartCoroutine(DungeonBuildCoroutine());
     }
 
-    //private void Update()
-    //{
-    //    if(Input.GetKeyDown(reloadKey))
-    //    {
-    //        SceneManager.LoadScene("Game");
-    //    }
-    //    if(Input.GetKeyDown(toggleMapKey))
-    //    {
-    //        goCamera.SetActive(!goCamera.activeInHierarchy);
-    //        goPlayer.SetActive(!goPlayer.activeInHierarchy);
-    //    }
-    //}
-
-    public void GenerateDungeon()
-    {
-        StartCoroutine(DungeonBuildCoroutine());
-    }
-
     private IEnumerator DungeonBuildCoroutine()
     {
-        //goCamera.SetActive(true);
         //goPlayer.SetActive(false);
 
         GameObject goContainer = new GameObject("Main Path");
@@ -139,11 +119,11 @@ public class DungeonGenerator : MonoBehaviour
             CollisionCheck();
         }
 
-        foreach (Connector connector in container.GetComponentsInChildren<Connector>())
+        foreach(Connector connector in container.GetComponentsInChildren<Connector>())
         {
-            if (!connector.isConnected)
+            if(!connector.isConnected)
             {
-                if (!availableConnectors.Contains(connector))
+                if(!availableConnectors.Contains(connector))
                 {
                     availableConnectors.Add(connector);
                 }
@@ -152,9 +132,9 @@ public class DungeonGenerator : MonoBehaviour
 
         dungeonState = DungeonState.generatingBranches;
 
-        for (int b = 0; b < numBranches; b++)
+        for(int b = 0; b < numBranches; b++)
         {
-            if (availableConnectors.Count > 0)
+            if(availableConnectors.Count > 0)
             {
                 goContainer = new GameObject("Branch " + (b + 1));
 
@@ -199,7 +179,7 @@ public class DungeonGenerator : MonoBehaviour
 
         if (numBranches > 2 && validBranchCount <= 2)
         {
-            SceneManager.LoadScene("Game");
+            SceneManager.LoadScene("Game too");
 
             yield break;
         }
@@ -209,15 +189,29 @@ public class DungeonGenerator : MonoBehaviour
         LightRestoration();
         CleanupBoxes();
         BlockedPassages();
-        SpawnDoors();
         SpawnGuardWaypoints();
 
         dungeonState = DungeonState.completed;
 
+        LoadingScreenDone();
+
         yield return null;
 
-        //goCamera.SetActive(false);
         //goPlayer.SetActive(true);
+    }
+
+    private void LoadingScreen()
+    {
+        loadingScreen.SetActive(true);
+        playerController.LockMovement(true);
+
+        //load sounds here?
+    }
+
+    private void LoadingScreenDone()
+    {
+        loadingScreen.SetActive(false);
+        playerController.UnlockMovement();
     }
     
     private void SpawnGuardWaypoints()
@@ -231,42 +225,6 @@ public class DungeonGenerator : MonoBehaviour
             if(myConnector.isConnected)
             {
                 Instantiate(guardWaypointPrefab, myConnector.transform.position, Quaternion.identity, guardWaypointContainer);
-            }
-        }
-    }
-
-    private void SpawnDoors()
-    {
-        if(doorwayPercent > 0)
-        {
-            Connector[] allConnectors = transform.GetComponentsInChildren<Connector>();
-
-            for(int i = 0; i < allConnectors.Length; i++)
-            {
-                Connector myConnector = allConnectors[i];
-
-                if(myConnector.isConnected)
-                {
-                    int roll = Random.Range(1, 101);
-
-                    if(roll <= doorwayPercent)
-                    {
-                        Vector3 halfExtents = new Vector3(myConnector.size.x, 1f, myConnector.size.x);
-                        Vector3 pos = myConnector.transform.position;
-                        Vector3 offset = Vector3.up * 0.5f;
-
-                        Collider[] hits = Physics.OverlapBox(pos + offset, halfExtents, Quaternion.identity, LayerMask.GetMask("Door"));
-
-                        if(hits.Length == 0)
-                        {
-                            int doorIndex = Random.Range(0, doorwayPrefabs.Length);
-
-                            GameObject goDoor = Instantiate(doorwayPrefabs[doorIndex], pos, myConnector.transform.rotation, myConnector.transform) as GameObject;
-
-                            goDoor.name = doorwayPrefabs[doorIndex].name;
-                        }
-                    }
-                }
             }
         }
     }

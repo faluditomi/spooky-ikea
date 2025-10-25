@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 originalLocalScale;
     private Collider myCollider;
 
+    private bool isMovementLocked = false;
+    private bool isCameraLocked = false;
+
     void Awake()
     {
         input = new PlayerInputActions();
@@ -89,7 +92,7 @@ public class PlayerController : MonoBehaviour
     {
         followTarget.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
 
-        if(moveVector != null)
+        if(moveVector != null && !isMovementLocked)
         {
             myRigidbody.AddRelativeForce(new Vector3(moveVector.x, 0f, moveVector.y) * myStateMachine.GetSpeedMultiplier(), ForceMode.VelocityChange);
         }
@@ -113,11 +116,19 @@ public class PlayerController : MonoBehaviour
 
     private void Move(InputAction.CallbackContext input)
     {
+        if(isMovementLocked)
+        {
+            moveVector = Vector2.zero;
+
+            return;
+        }
+
         moveVector = input.ReadValue<Vector2>();
     }
 
     private void Sprint(InputAction.CallbackContext input)
     {
+        if(isMovementLocked) return;
         if (input.performed)
         {
             myStateMachine.SetState(PlayerStateMachine.PlayerState.Sprinting);
@@ -134,7 +145,7 @@ public class PlayerController : MonoBehaviour
         //      -> go under low things when crouching (like repo)
     private void Crouch(InputAction.CallbackContext input)
     {
-        FindFirstObjectByType<GuardSpawner>().InitialiseGuardSpawner();
+        if(isMovementLocked) return;
         if(input.interaction is PressInteraction)
         {
             if(input.performed)
@@ -164,19 +175,33 @@ public class PlayerController : MonoBehaviour
 
     private void Look(InputAction.CallbackContext input)
     {
-        //The transform rotation can only be caught up to the follow transform's rotation
-        //once the cinemachine scripts have had time to run.
         transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
-
-        //Once the player is rotated properly, we have to reset the follow target and thus
-        //align the camera.
         followTarget.localEulerAngles = new Vector3(xRotation, 0f, 0f);
 
+        if(isCameraLocked) return;
+
         xRotation += -input.ReadValue<Vector2>().y * mouseSensitivity;
-
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
         yRotation += input.ReadValue<Vector2>().x * mouseSensitivity;
+    }
+
+    public void LockMovement(bool lockCamera)
+    {
+        isMovementLocked = true;
+        isCameraLocked = lockCamera;
+        moveVector = Vector2.zero;
+        myRigidbody.linearVelocity = new Vector3(0f, myRigidbody.linearVelocity.y, 0f);
+
+        if(!myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Crouching))
+        {
+            myStateMachine.SetState(PlayerStateMachine.PlayerState.Idle);
+        }
+    }
+
+    public void UnlockMovement()
+    {
+        isMovementLocked = false;
+        isCameraLocked = false;
     }
 
     public void StartCrouching()
