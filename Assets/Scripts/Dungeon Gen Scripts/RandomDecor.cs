@@ -7,7 +7,14 @@ public class RandomDecor : MonoBehaviour
 
     DungeonGenerator myGenerator;
 
+    private GuardSpawner guardSpawner;
+
     bool isCompleted;
+
+    private void Awake()
+    {
+        guardSpawner = FindFirstObjectByType<GuardSpawner>();
+    }
 
     private void Start()
     {
@@ -25,6 +32,8 @@ public class RandomDecor : MonoBehaviour
             GameObject goDecor = Instantiate(decorPrefabs[decorIndex], transform.position, transform.rotation, transform) as GameObject;
 
             goDecor.name = decorPrefabs[decorIndex].name;
+
+            guardSpawner.InitialiseGuardSpawner();
         }
     }
 }

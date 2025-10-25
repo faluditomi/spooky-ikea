@@ -134,6 +134,7 @@ public class PlayerController : MonoBehaviour
         //      -> go under low things when crouching (like repo)
     private void Crouch(InputAction.CallbackContext input)
     {
+        FindFirstObjectByType<GuardSpawner>().InitialiseGuardSpawner();
         if(input.interaction is PressInteraction)
         {
             if(input.performed)
