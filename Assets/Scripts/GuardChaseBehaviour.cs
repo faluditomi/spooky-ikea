@@ -25,7 +25,7 @@ public class GuardChaseBehaviour : MonoBehaviour
 
         myPlayerDetection = GetComponent<PlayerDetection>();
 
-        lastKnownPlayerPositionPrefab = Resources.Load<GameObject>("Prefabs/Troll/LastKnownPlayerPosition");
+        lastKnownPlayerPositionPrefab = Resources.Load<GameObject>("Prefabs/Guard/LastKnownPlayerPosition");
 
         currentLastKnownPlayerPosition = Instantiate(lastKnownPlayerPositionPrefab, Vector2.zero, Quaternion.identity);
 

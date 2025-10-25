@@ -38,13 +38,13 @@ public class GuardStateMachine : MonoBehaviour
     
     private void Awake()
     {
-        guardContainer = FindObjectOfType<GuardContainer>();
+        guardContainer = FindFirstObjectByType<GuardContainer>();
 
         myAgent = GetComponent<NavMeshAgent>();
 
-        player = FindObjectOfType<PlayerController>().transform;
+        player = FindFirstObjectByType<PlayerController>().transform;
 
-        mainLight = FindObjectOfType<Light>();
+        mainLight = FindFirstObjectByType<Light>();
     }
 
     private void Start()

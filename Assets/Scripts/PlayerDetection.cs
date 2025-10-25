@@ -22,8 +22,10 @@ public class PlayerDetection : MonoBehaviour
     [SerializeField] private float meshResolution = 1f;
     [Tooltip("The distance from which the guard can spot the player. Represented visaully in the scene.")]
     [SerializeField] private float viewRadius = 10f;
-    [Tooltip("The angle at which the guard sees in front of itself. Represented visually in the scene.")]
+    [Tooltip("The angle at which the guard sees in front of itself. Represented visually in the scene by a red circle.")]
     [SerializeField] [Range(0,360)] private float viewAngle = 90;
+    [Tooltip("The distance from which the guard can hear the player sprint. Represented visaully in the scene by a blue circle.")]
+    [SerializeField] private float hearingRadius = 15f;
 
     private void Awake()
     {
@@ -48,11 +50,12 @@ public class PlayerDetection : MonoBehaviour
     public bool IsPlayerInSight()
     {
         Vector3 vectorToPlayer = (myStateMachine.GetPlayer().position - transform.position).normalized;
-        
+
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
-        if((Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius) ||
-        (Vector3.Angle(transform.forward, vectorToPlayer) >= viewAngle / 2f && playerController.GetIsSprinting()))
+        //TODO: crouch -> hold ctrl, separate crouch speed, go under low things when crouching (like repo) 
+        if ((Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius) ||
+        (distanceToPlayer < hearingRadius && playerController.GetIsSprinting()))
         {
             return !Physics.Raycast(transform.position, vectorToPlayer, distanceToPlayer, obstacleMask);
         }
@@ -151,6 +154,11 @@ public class PlayerDetection : MonoBehaviour
     public float GetViewAngle()
     {
         return viewAngle;
+    }
+
+    public float GetHearingRadius()
+    {
+        return hearingRadius;
     }
 
     //A struct to hold the necessary info about the vertices of our mesh.
