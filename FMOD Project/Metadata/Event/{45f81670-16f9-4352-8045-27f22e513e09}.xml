@@ -204,23 +204,32 @@
 		<property name="filterTypeD">
 			<value>9</value>
 		</property>
+		<property name="filterTypeE">
+			<value>9</value>
+		</property>
 		<property name="frequencyA">
 			<value>6479.30664</value>
 		</property>
 		<property name="frequencyC">
-			<value>140.236496</value>
+			<value>92.6610107</value>
 		</property>
 		<property name="frequencyD">
 			<value>550.48114</value>
+		</property>
+		<property name="frequencyE">
+			<value>2770.78125</value>
 		</property>
 		<property name="qualityA">
 			<value>0.7961725</value>
 		</property>
 		<property name="qualityC">
-			<value>0.644206941</value>
+			<value>0.267448276</value>
 		</property>
 		<property name="gainD">
 			<value>-9.3103447</value>
+		</property>
+		<property name="gainE">
+			<value>-10.8620682</value>
 		</property>
 	</object>
 </objects>
