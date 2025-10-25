@@ -151,6 +151,7 @@
 	<object class="MixerBusEffectChain" id="{cbaca15b-f09b-4173-ac31-0f2d0bde3836}">
 		<relationship name="effects">
 			<destination>{d7259e01-3d04-4253-872a-7648b7fb8ed4}</destination>
+			<destination>{d1f03cbd-2cbd-49e5-978b-563a8e54072c}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{c7a3ae94-4811-4101-829d-578ddc19cb73}" />
@@ -162,6 +163,11 @@
 	</object>
 	<object class="ObjectSpatialiserEffect" id="{535532d4-0754-4ba5-91ba-7070e12fca96}" />
 	<object class="MixerBusFader" id="{d7259e01-3d04-4253-872a-7648b7fb8ed4}" />
+	<object class="GainEffect" id="{d1f03cbd-2cbd-49e5-978b-563a8e54072c}">
+		<property name="gain">
+			<value>10</value>
+		</property>
+	</object>
 	<object class="Automator" id="{206798ae-7cf3-4013-bed6-d559c5c69b45}">
 		<property name="nameOfPropertyBeingAutomated">
 			<value>frequencyA</value>
