@@ -54,6 +54,15 @@ public class Dialogue : ScriptableObject, ISerializationCallbackReceiver
 
     public void GetChildren(DialogueNode parentNode, List<DialogueNode> children)
     {
+
+        if(children == null) return;
+
+        if(parentNode == null)
+        {
+            children.Clear();
+            return;
+        }
+
         children.Clear();
 
         foreach(string childID in parentNode.GetChildren())

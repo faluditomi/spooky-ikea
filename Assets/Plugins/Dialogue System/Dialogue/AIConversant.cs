@@ -64,6 +64,16 @@ public class AIConversant : MonoBehaviour
         dialogueTriggers = GetComponents<DialogueTrigger>();
 
         typewriterWait = new WaitForSeconds(typewriterSpeed);
+
+        if(dialogueImage == null)
+        {
+            dialogueImage = GameObject.Find("DialoguePanel").GetComponent<Image>();
+        }
+
+        if(dialogueText == null)
+        {
+            dialogueText = GameObject.Find("DialogueText").GetComponent<TMP_Text>();
+        }
     }
     #endregion
 

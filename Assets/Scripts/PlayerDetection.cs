@@ -11,10 +11,18 @@ public class PlayerDetection : MonoBehaviour
     private PlayerStateMachine playerStateMachine;
 
     [Tooltip("The layers that guard can't see through.")]
-    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private LayerMask[] obstacleMasks;
 
     [Tooltip("The object that the FOV mesh can be assigned to.")]
     [SerializeField] private MeshFilter viewMeshFilter;
+
+    // Add: reference to the MeshRenderer used to render the view cone
+    [Tooltip("Optional: MeshRenderer for the FOV mesh. If null, will be taken from the MeshFilter's GameObject.")]
+    [SerializeField] private MeshRenderer viewMeshRenderer;
+
+    // Add: color for the view cone (use a material/shader that supports color & transparency)
+    [Tooltip("Color of the view cone. Ensure the Material uses a shader that supports _Color (e.g. Standard with Rendering Mode = Transparent).")]
+    [SerializeField] private Color viewColor = new Color(1f, 0f, 0f, 0.35f);
 
     private Mesh viewMesh;
 
@@ -27,7 +35,9 @@ public class PlayerDetection : MonoBehaviour
     [Tooltip("The angle at which the guard sees in front of itself. Represented visually in the scene by a red circle.")]
     [SerializeField] [Range(0,360)] private float viewAngle = 90;
     [Tooltip("The distance from which the guard can hear the player sprint. Represented visaully in the scene by a blue circle.")]
-    [SerializeField] private float hearingRadius = 15f;
+    [SerializeField] private float hearingRunningRadius = 15f;
+    [Tooltip("The distance from which the guard can hear the player sneak. Represented visaully in the scene by a green circle.")]
+    [SerializeField] private float hearingSneakingRadius = 5f;
 
     private void Awake()
     {
@@ -45,6 +55,18 @@ public class PlayerDetection : MonoBehaviour
         viewMesh.name = "Field of View";
 
         viewMeshFilter.mesh = viewMesh;
+
+        // Ensure we have a MeshRenderer reference
+        if (viewMeshRenderer == null && viewMeshFilter != null)
+        {
+            viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
+        }
+
+        // Apply the configured color to the material instance (creates an instance)
+        if (viewMeshRenderer != null && viewMeshRenderer.material != null)
+        {
+            viewMeshRenderer.material.color = viewColor;
+        }
     }
     private void LateUpdate()
     {
@@ -54,18 +76,24 @@ public class PlayerDetection : MonoBehaviour
     public bool IsPlayerInSight()
     {
         Vector3 vectorToPlayer = (myStateMachine.GetPlayer().position - transform.position).normalized;
-
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
         if (Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius)
         {
-            return !Physics.Raycast(transform.position, vectorToPlayer, distanceToPlayer, obstacleMask);
+            foreach (LayerMask mask in obstacleMasks)
+            {
+                if (Physics.Raycast(transform.position, vectorToPlayer, distanceToPlayer, mask))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         return false;
     }
     
-    public bool IsPlayerMakingNoise()
+    public bool IsPlayerMakingNoiseRun()
     {
         if(!playerStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Sprinting))
         {
@@ -74,8 +102,21 @@ public class PlayerDetection : MonoBehaviour
         
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
-        return distanceToPlayer < hearingRadius;
+        return distanceToPlayer < hearingRunningRadius;
     }
+    
+    public bool IsPlayerMakingNoiseSneak()
+    {
+        if(!playerStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Sneaking))
+        {
+            return false;
+        }
+        
+        float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
+
+        return distanceToPlayer < hearingSneakingRadius;
+    }
+
 
     //Returns the vector that is at a certain angle from the guard.
     public Vector3 VectorFromAngle(float angleInDegrees, bool isAngleGlobal)
@@ -150,20 +191,21 @@ public class PlayerDetection : MonoBehaviour
         RaycastHit hit;
         Vector3 feetPos = new Vector3(transform.position.x, transform.position.y - myCollider.bounds.extents.y + 0.2f, transform.position.z);
 
-        if(Physics.Raycast(feetPos, direction, out hit, viewRadius, obstacleMask))
+        foreach (LayerMask mask in obstacleMasks)
         {
-            Vector3 adjustedHitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
-            return new ViewCastInfo(true, adjustedHitPoint, hit.distance, globalAngle);
+            if(Physics.Raycast(feetPos, direction, out hit, viewRadius, mask))
+            {
+                Vector3 adjustedHitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+                return new ViewCastInfo(true, adjustedHitPoint, hit.distance, globalAngle);
+            }
         }
-        else
-        {
-            Vector3 endPoint = new Vector3(
-                feetPos.x + direction.x * viewRadius,
-                transform.position.y,
-                feetPos.z + direction.z * viewRadius
-            );
-            return new ViewCastInfo(false, endPoint, viewRadius, globalAngle);
-        }
+
+        Vector3 endPoint = new Vector3(
+            feetPos.x + direction.x * viewRadius,
+            transform.position.y,
+            feetPos.z + direction.z * viewRadius
+        );
+        return new ViewCastInfo(false, endPoint, viewRadius, globalAngle);
     }
 
     public float GetViewRadius()
@@ -176,9 +218,14 @@ public class PlayerDetection : MonoBehaviour
         return viewAngle;
     }
 
-    public float GetHearingRadius()
+    public float GetHearingRadiusRun()
     {
-        return hearingRadius;
+        return hearingRunningRadius;
+    }
+
+    public float GetHearingRadiusSneak()
+    {
+        return hearingSneakingRadius;
     }
 
     //A struct to hold the necessary info about the vertices of our mesh.
@@ -201,5 +248,42 @@ public class PlayerDetection : MonoBehaviour
 
             this.angle = angle;
         }
+    }
+
+    // Add: runtime API to change the view cone color
+    public void SetViewColor(Color color)
+    {
+        viewColor = color;
+
+        if (viewMeshRenderer == null && viewMeshFilter != null)
+        {
+            viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
+        }
+
+        if (viewMeshRenderer != null && viewMeshRenderer.sharedMaterial != null)
+        {
+            viewMeshRenderer.sharedMaterial.color = viewColor;
+        }
+    }
+
+    // Add: apply color when component is enabled at runtime
+    private void OnEnable()
+    {
+        SetViewColor(viewColor);
+    }
+
+    // Add: apply color immediately in the editor when the value changes in the Inspector
+    private void OnValidate()
+    {
+        // Avoid calling during domain reloads when serialization may be incomplete.
+        if (!Application.isPlaying)
+        {
+            // Ensure references exist before trying to set color
+            if (viewMeshFilter != null && viewMeshRenderer == null)
+            {
+                viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
+            }
+        }
+        SetViewColor(viewColor);
     }
 }

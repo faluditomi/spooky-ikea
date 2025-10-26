@@ -27,37 +27,29 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void SetState(PlayerState state)
     {
-        switch(currentState)
-        {
+        // switch(currentState)
+        // {
             // case PlayerState.Sneaking:
             //     break;
             // case PlayerState.Sprinting:
             //     break;
-            case PlayerState.Crouching:
-                if(!state.Equals(PlayerState.Crouching))
-                {
-                    playerController.StopCrouching();
-                }
-                break;
+            // case PlayerState.Crouching:
+            //     break;
             // case PlayerState.Idle:
             //     break;
-        }
+        // }
         
-        switch(state)
-        {
+        // switch(state)
+        // {
             //     case PlayerState.Sneaking:
             //         break;
             //     case PlayerState.Sprinting:
             //         break;
-            case PlayerState.Crouching:
-                if(!currentState.Equals(PlayerState.Crouching))
-                {
-                    playerController.StartCrouching();
-                }
-                break;
+            // case PlayerState.Crouching:
+            //     break;
         //     case PlayerState.Idle:
         //         break;
-        }
+        // }
 
         currentState = state;
     }

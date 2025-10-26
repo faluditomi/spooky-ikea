@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GuardChaseBehaviour : MonoBehaviour
 {
@@ -62,7 +63,7 @@ public class GuardChaseBehaviour : MonoBehaviour
 
     private void ChasePlayer()
     {
-        if(myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoise())
+        if(myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoiseRun() || myPlayerDetection.IsPlayerMakingNoiseSneak())
         {
             TargetPlayer();
         }
@@ -78,6 +79,11 @@ public class GuardChaseBehaviour : MonoBehaviour
         if(other.CompareTag("LastKnownPlayerPosition"))
         {
             delayCoroutine = StartCoroutine(MenacingDelayBehaviour());
+        }
+
+        if(other.CompareTag("Player"))
+        {
+            SceneManager.LoadScene("Main Menu");
         }
     }
     private IEnumerator MenacingDelayBehaviour()

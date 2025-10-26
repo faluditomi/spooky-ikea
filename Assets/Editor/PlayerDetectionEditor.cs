@@ -26,6 +26,10 @@ public class PlayerDetectionEditor : Editor
 
         Handles.color = Color.blue;
 
-        Handles.DrawWireArc(playerDetection.transform.position, Vector3.up, Vector3.forward, 360, playerDetection.GetHearingRadius());
+        Handles.DrawWireArc(playerDetection.transform.position, Vector3.up, Vector3.forward, 360, playerDetection.GetHearingRadiusRun());
+
+        Handles.color = Color.green;
+
+        Handles.DrawWireArc(playerDetection.transform.position, Vector3.up, Vector3.forward, 360, playerDetection.GetHearingRadiusSneak());
     }
 }

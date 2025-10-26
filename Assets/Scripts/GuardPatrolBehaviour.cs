@@ -122,7 +122,7 @@ public class GuardPatrolBehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(detectionCheckFrequency);
 
-        if (myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoise())
+        if (myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoiseRun() || myPlayerDetection.IsPlayerMakingNoiseSneak())
         {
             myStateMachine.SetState(GuardStateMachine.GuardState.Chasing);
         }

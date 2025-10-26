@@ -1,15 +1,17 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 using FMODUnity;
 using FMOD.Studio;
 
 public class PeeTrigger : MonoBehaviour
 {
-    [SerializeField] private GameObject peePrompt;
     [SerializeField] private GameObject playerGameObject;
     [SerializeField] private GameObject premadeMap;
     [SerializeField] private ParticleSystem peeParticles;
     [SerializeField] private PlayerController playerController;
+    [SerializeField] private TMP_Text objectiveText;
+    [SerializeField] private GameObject objectivePanel;
     private AIConversant aiConversant;
 
     private GuardSpawner guardSpawner;
@@ -21,6 +23,11 @@ public class PeeTrigger : MonoBehaviour
         aiConversant = GetComponent<AIConversant>();
         
         guardSpawner = FindFirstObjectByType<GuardSpawner>();
+    }
+
+    private void Start()
+    {
+        StartCoroutine(YeyeAhhCoroutine());
     }
 
     private void Update()
@@ -50,9 +57,8 @@ public class PeeTrigger : MonoBehaviour
     }
 
     private IEnumerator PeeCoroutine()
-    {        
+    {
         //unzip sound
-
         yield return new WaitForSeconds(0.5f);
 
         peeParticles.Play();
@@ -82,6 +88,21 @@ public class PeeTrigger : MonoBehaviour
         playerGameObject.transform.position = new Vector3(0f, 1f, 4f);
         guardSpawner.InitialiseGuardSpawner();
         playerController.UnlockMovement();
+        
+
+        objectivePanel.SetActive(true);
+        objectiveText.text = "Find your bed";
+
+        yield return new WaitForSeconds(10f);
+        objectivePanel.SetActive(false);
         premadeMap.SetActive(false);
+    }
+
+    private IEnumerator YeyeAhhCoroutine()
+    {
+        yield return new WaitForSeconds(10f);
+
+        objectiveText.text = "";
+        objectivePanel.SetActive(false);
     }
 }
