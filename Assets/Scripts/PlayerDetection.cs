@@ -148,7 +148,7 @@ public class PlayerDetection : MonoBehaviour
     {
         Vector3 direction = VectorFromAngle(globalAngle, true);
         RaycastHit hit;
-        Vector3 feetPos = new Vector3(transform.position.x, transform.position.y - myCollider.bounds.extents.y, transform.position.z);
+        Vector3 feetPos = new Vector3(transform.position.x, transform.position.y - myCollider.bounds.extents.y + 0.2f, transform.position.z);
 
         if(Physics.Raycast(feetPos, direction, out hit, viewRadius, obstacleMask))
         {
