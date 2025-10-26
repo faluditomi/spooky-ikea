@@ -1,3 +1,4 @@
+using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 
@@ -5,37 +6,54 @@ public class PlayerFootstep : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
    
-
-    
- 
-    [EventRef] public string footstepEvent;   // e.g. "event:/Player/Footstep"
     public float stepInterval = 0.5f;         // Time between footsteps
     public float moveThreshold = 0.1f;        // Minimum velocity to count as "moving"
 
     private float stepTimer = 0f;
-    private PlayerController controller;   // Or Rigidbody, depending on movement system
+    private Rigidbody rb;   // Or Rigidbody, depending on movement system
+    private PlayerStateMachine playerStateMachine;
+    private EventInstance playerFootstep;
 
     void Start()
     {
-        controller = GetComponent<PlayerController>();
+        rb = GetComponent<Rigidbody>();
+        playerStateMachine = GetComponent<PlayerStateMachine>();
+        playerFootstep = AudioManager.instance.CreateEventInstance(FMODEvents.instance.playerFootstep);
     }
 
     void Update()
     {
-        bool isMoving = controller != null && controller.velocity.magnitude > moveThreshold;
+        bool isMoving = rb.linearVelocity.magnitude > 0f;
+        
+        switch (playerStateMachine.GetCurrentState())
+        {
+            case PlayerStateMachine.PlayerState.Sneaking:
+                stepInterval = 0.5f;
+                playerFootstep.setVolume(0.6f);
+                break;
+            case PlayerStateMachine.PlayerState.Sprinting:
+                stepInterval = 0.15f;
+                playerFootstep.setVolume(1f);
+                break;
+            case PlayerStateMachine.PlayerState.Crouching:
+                stepInterval = 1f;
+                playerFootstep.setVolume(0f);
+                break;
+        }
 
         if (isMoving)
         {
             stepTimer += Time.deltaTime;
             if (stepTimer >= stepInterval)
             {
-                RuntimeManager.PlayOneShot(footstepEvent, transform.position);
+
+                RuntimeManager.PlayOneShot(FMODEvents.instance.playerFootstep, transform.position);
                 stepTimer = 0f;
             }
         }
         else
         {
-            stepTimer = 0f; // reset when not moving
+            stepTimer = stepInterval; // reset when not moving
         }
     }
   

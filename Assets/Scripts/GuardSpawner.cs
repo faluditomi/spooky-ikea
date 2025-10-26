@@ -32,11 +32,11 @@ public class GuardSpawner : MonoBehaviour
         }
         
         List<Transform> waypoints = new List<Transform>(spawnPoints);
-        
-        for(int i = 0; i < numberOfEnemies; i++)
+
+        for (int i = 0; i < numberOfEnemies; i++)
         {
-            if(spawnPoints.Count <= 0) break;
-            
+            if (spawnPoints.Count <= 0) break;
+
             int randomNumber = Random.Range(0, spawnPoints.Count);
             Transform spawnPoint = spawnPoints[randomNumber];
             GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity, transform);
@@ -49,5 +49,7 @@ public class GuardSpawner : MonoBehaviour
 
             spawnPoints.Remove(spawnPoint);
         }
+
+        GetComponent<GuardContainer>().DoTheThing();
     }
 }

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering;
 using UnityEngine;
+using FMOD.Studio;
+using FMODUnity;
 
 public class GuardContainer : MonoBehaviour
 {
@@ -17,6 +19,14 @@ public class GuardContainer : MonoBehaviour
         }
 
         player = FindFirstObjectByType<PlayerController>().transform;
+    }
+
+    public void DoTheThing()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            guards.Add(transform.GetChild(i).GetComponent<GuardStateMachine>());
+        }
     }
 
     void Start()
@@ -41,7 +51,12 @@ public class GuardContainer : MonoBehaviour
     
     public void DistanceToClosestEnemy()
     {
-        Debug.Log("called distance calc");
+        float distance;
+        RuntimeManager.StudioSystem.getParameterByName("Distance", out distance);
+        Debug.Log("distance " + distance);
+
+
+        
         if (guards.Count == 0)
         {
             return;
@@ -63,15 +78,14 @@ public class GuardContainer : MonoBehaviour
             //SET THE DISTANCE VALUE TO THIS BELOW
             // Mathf.Infinity;
             AudioManager.instance.SetGlobalParameter("Distance", Mathf.Infinity, false);
-        Debug.Log("Mathf.Infinity");
         }
         else
         {
             //SET THE DISTANCE VALUE TO THIS BELOW
             // Mathf.Sqrt(minSqr);
-            AudioManager.instance.SetGlobalParameter("Distance", Mathf.Sqrt(minSqr), false);
-        Debug.Log(Mathf.Sqrt(minSqr));
-
+            float number = Mathf.Min(Mathf.Sqrt(minSqr), 30f) / 30f * 100f;
+            AudioManager.instance.SetGlobalParameter("Distance", number, false);
+        Debug.Log(number);
         }
     }
 }
