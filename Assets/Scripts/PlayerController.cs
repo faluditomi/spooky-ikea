@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
 
         if(moveVector.Equals(Vector3.zero))
         {
-            if (!myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Crouching))
+            if(!myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Crouching) && !myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Sprinting))
             {
                 myStateMachine.SetState(PlayerStateMachine.PlayerState.Idle);
             }
