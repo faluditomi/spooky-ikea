@@ -35,8 +35,6 @@ public class DungeonGenerator : MonoBehaviour
     [Range(0, 50)][SerializeField] int branchLength = 5;
     [Tooltip("Number of branches.")]
     [Range(0, 25)][SerializeField] int numBranches = 10;
-    [Tooltip("Percentage of a doorway to spawn in between tiles.")]
-    [Range(0, 100)][SerializeField] int doorwayPercent = 25;
     [Tooltip("Delay for dungeon generation for dramatic effect.")]
     [Range(0, 1f)][SerializeField] float constructionDelay;
 

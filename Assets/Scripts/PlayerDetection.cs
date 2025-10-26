@@ -240,9 +240,9 @@ public class PlayerDetection : MonoBehaviour
             viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
         }
 
-        if (viewMeshRenderer != null && viewMeshRenderer.material != null)
+        if (viewMeshRenderer != null && viewMeshRenderer.sharedMaterial != null)
         {
-            viewMeshRenderer.material.color = viewColor;
+            viewMeshRenderer.sharedMaterial.color = viewColor;
         }
     }
 
