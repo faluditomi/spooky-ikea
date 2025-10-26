@@ -33,20 +33,20 @@ public class AudioManager : MonoBehaviour
 
         // Initializes and starts correct music and ambience
         string currentScene = SceneManager.GetActiveScene().name;
-        switch (currentScene)
-        {
-            case "Main Menu":
-                InitializeMusic(FMODEvents.instance.musicMenu);
+       // switch (currentScene)
+       // {
+       //     case "Main Menu":
+       //         InitializeMusic(FMODEvents.instance.musicMenu);
                 //InitializeAmbience(FMODEvents.instance.cityMenu);
-                break;
+       //         break;
 
             //case "Game too 2":
-                InitializeMusic(FMODEvents.instance.musicPhase01);
-                InitializeAmbience(FMODEvents.instance.roomtone);
-                break;
-
-
-        }
+       //         InitializeMusic(FMODEvents.instance.musicPhase01);
+       //         InitializeAmbience(FMODEvents.instance.roomtone);
+       //         break;
+       //
+       //
+       // }
 
     }
 
@@ -54,6 +54,7 @@ public class AudioManager : MonoBehaviour
     {
         musicEventInstance = CreateEventInstance(musicEventReference);
         musicEventInstance.start();
+
     }
 
     public void InitializeAmbience(EventReference ambienceEventReferece)
@@ -62,19 +63,31 @@ public class AudioManager : MonoBehaviour
         ambienceEventInstance.start();
     }
 
+    public void FadeInMusic(EventInstance musicInstance)
+    {
+        // Will smoothly fade in using FMOD's seek speed
+        musicInstance.setParameterByName("Fade", 1f);
+    }
+
+    public void FadeOutMusic(EventInstance musicInstance)
+    {
+        // Will smoothly fade out using FMOD's seek speed
+        musicInstance.setParameterByName("Fade", 0f);
+    }
+
     public void SetAmbienceParameter(string parameterName, float parameterValue)
     {
         ambienceEventInstance.setParameterByName(parameterName, parameterValue);
     }
 
-    public void SetParameter(EventInstance eventInstance, string parameterName, float value)
+    public void SetParameter(EventInstance eventInstance, string parameterName, float value, bool ignoreSeekSpeed)
     {
-        eventInstance.setParameterByName(parameterName, value);
+        eventInstance.setParameterByName( parameterName, value, ignoreSeekSpeed);
     }
 
-    public void SetGlobalParameter(string parameterName, float value)
+    public void SetGlobalParameter(string parameterName, float value, bool ignoreSeekSpeed)
     {
-        RuntimeManager.StudioSystem.setParameterByName(parameterName, value);
+        RuntimeManager.StudioSystem.setParameterByName(parameterName, value, ignoreSeekSpeed);
     }
 
 

@@ -58,16 +58,25 @@ public class PeeTrigger : MonoBehaviour
         peeParticles.Play();
         playerController.LockMovement(false);
         AudioManager.instance.PlayOneShot(FMODEvents.instance.playerPeeing, transform.position);
+        EventInstance musicPhase01 = AudioManager.instance.CreateEventInstance(FMODEvents.instance.musicPhase01);
+        AudioManager.instance.FadeOutMusic(musicPhase01);
 
         yield return new WaitForSeconds(6f);
+        float fade;
+        RuntimeManager.StudioSystem.getParameterByName("Fade", out fade);
+        Debug.Log(fade);
 
         peeParticles.Stop();
-        EventEmitters.instance.musicPhase01.Stop();
+        
 
         yield return new WaitForSeconds(1.5f);
 
-        AudioManager.instance.SetGlobalParameter("Distance", 100f, ignoreSeekSpeed: true);
-        AudioManager.instance.InitializeMusic(FMODEvents.instance.musicPhase02);
+        EventEmitters.instance.musicPhase01.Stop();
+        AudioManager.instance.SetGlobalParameter("Distance", 100f, true);
+        EventInstance musicPhase02 = AudioManager.instance.CreateEventInstance(FMODEvents.instance.musicPhase02);
+        AudioManager.instance.SetParameter(musicPhase02, "Fade", 0f, true);
+        musicPhase02.start();
+        AudioManager.instance.FadeInMusic(musicPhase02);
         
         
         playerGameObject.transform.position = new Vector3(0f, 1f, 4f);

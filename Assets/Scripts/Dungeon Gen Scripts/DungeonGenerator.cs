@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using FMOD.Studio;
+using FMODUnity;
 
 public enum DungeonState { inactive, generatingMain, generatingBranches, cleanup, completed }
 
@@ -183,7 +185,9 @@ public class DungeonGenerator : MonoBehaviour
 
         //load sounds here?
         AudioManager.instance.InitializeAmbience(FMODEvents.instance.roomtone);
+        //EventInstance musicPhase01 = AudioManager.instance.CreateEventInstance(FMODEvents.instance.musicPhase01);
         AudioManager.instance.InitializeEventEmitter(FMODEvents.instance.musicPhase01, GameObject.Find("Fountain").gameObject);
+
     }
 
     private void LoadingScreenDone()
