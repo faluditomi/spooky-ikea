@@ -61,11 +61,14 @@ public class GuardContainer : MonoBehaviour
         {
             //SET THE DISTANCE VALUE TO THIS BELOW
             // Mathf.Infinity;
+            AudioManager.instance.SetGlobalParameter("Distance", Mathf.Infinity, false);
         }
         else
         {
             //SET THE DISTANCE VALUE TO THIS BELOW
             // Mathf.Sqrt(minSqr);
-        }        
+            AudioManager.instance.SetGlobalParameter("Distance", Mathf.Sqrt(minSqr), false);
+
+        }
     }
 }
