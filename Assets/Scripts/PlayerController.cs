@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 originalLocalScale;
     private Collider myCollider;
 
+    private bool isMovementLocked = false;
+    private bool isCameraLocked = false;
+
     void Awake()
     {
         input = new PlayerInputActions();
@@ -89,7 +92,7 @@ public class PlayerController : MonoBehaviour
     {
         followTarget.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
 
-        if(moveVector != null)
+        if(moveVector != null && !isMovementLocked)
         {
             myRigidbody.AddRelativeForce(new Vector3(moveVector.x, 0f, moveVector.y) * myStateMachine.GetSpeedMultiplier(), ForceMode.VelocityChange);
         }
@@ -113,11 +116,19 @@ public class PlayerController : MonoBehaviour
 
     private void Move(InputAction.CallbackContext input)
     {
+        if(isMovementLocked)
+        {
+            moveVector = Vector2.zero;
+
+            return;
+        }
+
         moveVector = input.ReadValue<Vector2>();
     }
 
     private void Sprint(InputAction.CallbackContext input)
     {
+        if(isMovementLocked) return;
         if (input.performed)
         {
             myStateMachine.SetState(PlayerStateMachine.PlayerState.Sprinting);
@@ -129,11 +140,10 @@ public class PlayerController : MonoBehaviour
     }
 
         //TODO: crouch
-        //      -> crouching should cancel sprinting and the other way around
-        //      -> lower view when crouching
         //      -> go under low things when crouching (like repo)
     private void Crouch(InputAction.CallbackContext input)
     {
+        if(isMovementLocked) return;
         if(input.interaction is PressInteraction)
         {
             if(input.performed)
@@ -163,19 +173,33 @@ public class PlayerController : MonoBehaviour
 
     private void Look(InputAction.CallbackContext input)
     {
-        //The transform rotation can only be caught up to the follow transform's rotation
-        //once the cinemachine scripts have had time to run.
         transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
-
-        //Once the player is rotated properly, we have to reset the follow target and thus
-        //align the camera.
         followTarget.localEulerAngles = new Vector3(xRotation, 0f, 0f);
 
+        if(isCameraLocked) return;
+
         xRotation += -input.ReadValue<Vector2>().y * mouseSensitivity;
-
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
         yRotation += input.ReadValue<Vector2>().x * mouseSensitivity;
+    }
+
+    public void LockMovement(bool lockCamera)
+    {
+        isMovementLocked = true;
+        isCameraLocked = lockCamera;
+        moveVector = Vector2.zero;
+        myRigidbody.linearVelocity = new Vector3(0f, myRigidbody.linearVelocity.y, 0f);
+
+        if(!myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Crouching))
+        {
+            myStateMachine.SetState(PlayerStateMachine.PlayerState.Idle);
+        }
+    }
+
+    public void UnlockMovement()
+    {
+        isMovementLocked = false;
+        isCameraLocked = false;
     }
 
     public void StartCrouching()
@@ -206,7 +230,11 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 startScale = transform.localScale;
 
-        if(Mathf.Approximately(duration, 0f))
+        // Get initial collider bounds before scaling
+        float startExtentY = myCollider.bounds.extents.y;
+        float startBottomY = myCollider.bounds.center.y - startExtentY;
+
+        if (Mathf.Approximately(duration, 0f))
         {
             transform.localScale = targetScale;
             crouchCoroutine = null;
@@ -214,25 +242,38 @@ public class PlayerController : MonoBehaviour
         }
 
         float elapsed = 0f;
-        while(elapsed < duration)
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
 
-            //smoothstep for nicer interpolation
+            // Smoothstep easing
             float eased = t * t * (3f - 2f * t);
+
+            // Interpolate scale
             Vector3 newScale = Vector3.Lerp(startScale, targetScale, eased);
             transform.localScale = newScale;
 
-            //after scaling, adjust position so feet remain on the ground.
-            //TODO: make this work on any y
-            float feetY = myCollider.bounds.extents.y;
-            transform.position = new Vector3(transform.position.x, feetY, transform.position.z);
+            // --- Keep feet grounded ---
+            // Compute new collider bottom after scaling
+            float newExtentY = myCollider.bounds.extents.y;
+            float newBottomY = myCollider.bounds.center.y - newExtentY;
+
+            // Compute the vertical offset needed to keep the feet in place
+            float bottomDelta = startBottomY - newBottomY;
+            transform.position += new Vector3(0f, bottomDelta, 0f);
 
             yield return null;
         }
 
         transform.localScale = targetScale;
+
+        // Final correction for any accumulated floating-point error
+        float finalExtentY = myCollider.bounds.extents.y;
+        float finalBottomY = myCollider.bounds.center.y - finalExtentY;
+        float finalDelta = startBottomY - finalBottomY;
+        transform.position += new Vector3(0f, finalDelta, 0f);
+
         crouchCoroutine = null;
     }
 }

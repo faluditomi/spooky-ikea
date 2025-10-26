@@ -5,21 +5,20 @@ public class PeeTrigger : MonoBehaviour
 {
     [SerializeField] private GameObject peePrompt;
     [SerializeField] private GameObject playerGameObject;
-    //[SerializeField] private GameObject generatedDungeon;
-    //[SerializeField] private GameObject premadeMap;
+    [SerializeField] private GameObject premadeMap;
     [SerializeField] private ParticleSystem peeParticles;
+    [SerializeField] private PlayerController playerController;
     private AIConversant aiConversant;
+
+    private GuardSpawner guardSpawner;
 
     private bool inRange = false;
 
     private void Awake()
     {
         aiConversant = GetComponent<AIConversant>();
-    }
-
-    private void Start()
-    {
-        //generatedDungeon.SetActive(false);
+        
+        guardSpawner = FindFirstObjectByType<GuardSpawner>();
     }
 
     private void Update()
@@ -49,29 +48,24 @@ public class PeeTrigger : MonoBehaviour
     }
 
     private IEnumerator PeeCoroutine()
-    {
-        peePrompt.SetActive(false);
-        
+    {        
         //unzip sound
 
         yield return new WaitForSeconds(0.5f);
 
         peeParticles.Play();
-
+        playerController.LockMovement(false);
         //pee sound
-
-        //cutscene?
 
         yield return new WaitForSeconds(3f);
 
-        //premadeMap.SetActive(false);
-
-        //generatedDungeon.SetActive(true);
-
         peeParticles.Stop();
 
+        yield return new WaitForSeconds(1.5f);
+
         playerGameObject.transform.position = new Vector3(0f, 1f, 4f);
-        //generate map
-        //dungeonGenerator.GenerateDungeon();
+        guardSpawner.InitialiseGuardSpawner();
+        playerController.UnlockMovement();
+        premadeMap.SetActive(false);
     }
 }

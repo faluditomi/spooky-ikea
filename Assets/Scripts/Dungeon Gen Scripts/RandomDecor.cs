@@ -7,7 +7,14 @@ public class RandomDecor : MonoBehaviour
 
     DungeonGenerator myGenerator;
 
+    private GuardSpawner guardSpawner;
+
     bool isCompleted;
+
+    private void Awake()
+    {
+        guardSpawner = FindFirstObjectByType<GuardSpawner>();
+    }
 
     private void Start()
     {
