@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class GuardContainer : MonoBehaviour
@@ -18,6 +19,11 @@ public class GuardContainer : MonoBehaviour
         player = FindFirstObjectByType<PlayerController>().transform;
     }
 
+    void Start()
+    {
+        InvokeRepeating("DistanceToClosestEnemy", 0f, 0.5f);
+    }
+
     public bool IsLastPursuer()
     {
         int i = 0;
@@ -33,9 +39,12 @@ public class GuardContainer : MonoBehaviour
         return i < 2;
     }
     
-    public float DistanceToClosestEnemy()
+    public void DistanceToClosestEnemy()
     {
-        if (guards.Count == 0) return Mathf.Infinity;
+        if (guards.Count == 0)
+        {
+            return;
+        }
 
         float minSqr = float.PositiveInfinity;
         Vector3 oPos = player.position;
@@ -48,7 +57,15 @@ public class GuardContainer : MonoBehaviour
             if (sqr < minSqr) minSqr = sqr;
         }
 
-        if (float.IsPositiveInfinity(minSqr)) return Mathf.Infinity;
-        return Mathf.Sqrt(minSqr);
+        if (float.IsPositiveInfinity(minSqr))
+        {
+            //SET THE DISTANCE VALUE TO THIS BELOW
+            // Mathf.Infinity;
+        }
+        else
+        {
+            //SET THE DISTANCE VALUE TO THIS BELOW
+            // Mathf.Sqrt(minSqr);
+        }        
     }
 }
