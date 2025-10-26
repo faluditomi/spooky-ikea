@@ -11,7 +11,7 @@ public class PlayerDetection : MonoBehaviour
     private PlayerStateMachine playerStateMachine;
 
     [Tooltip("The layers that guard can't see through.")]
-    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private LayerMask[] obstacleMasks;
 
     [Tooltip("The object that the FOV mesh can be assigned to.")]
     [SerializeField] private MeshFilter viewMeshFilter;
@@ -54,12 +54,18 @@ public class PlayerDetection : MonoBehaviour
     public bool IsPlayerInSight()
     {
         Vector3 vectorToPlayer = (myStateMachine.GetPlayer().position - transform.position).normalized;
-
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
         if (Vector3.Angle(transform.forward, vectorToPlayer) < viewAngle / 2f && distanceToPlayer < viewRadius)
         {
-            return !Physics.Raycast(transform.position, vectorToPlayer, distanceToPlayer, obstacleMask);
+            foreach (LayerMask mask in obstacleMasks)
+            {
+                if (Physics.Raycast(transform.position, vectorToPlayer, distanceToPlayer, mask))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         return false;
@@ -150,20 +156,21 @@ public class PlayerDetection : MonoBehaviour
         RaycastHit hit;
         Vector3 feetPos = new Vector3(transform.position.x, transform.position.y - myCollider.bounds.extents.y + 0.2f, transform.position.z);
 
-        if(Physics.Raycast(feetPos, direction, out hit, viewRadius, obstacleMask))
+        foreach (LayerMask mask in obstacleMasks)
         {
-            Vector3 adjustedHitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
-            return new ViewCastInfo(true, adjustedHitPoint, hit.distance, globalAngle);
+            if(Physics.Raycast(feetPos, direction, out hit, viewRadius, mask))
+            {
+                Vector3 adjustedHitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+                return new ViewCastInfo(true, adjustedHitPoint, hit.distance, globalAngle);
+            }
         }
-        else
-        {
-            Vector3 endPoint = new Vector3(
-                feetPos.x + direction.x * viewRadius,
-                transform.position.y,
-                feetPos.z + direction.z * viewRadius
-            );
-            return new ViewCastInfo(false, endPoint, viewRadius, globalAngle);
-        }
+
+        Vector3 endPoint = new Vector3(
+            feetPos.x + direction.x * viewRadius,
+            transform.position.y,
+            feetPos.z + direction.z * viewRadius
+        );
+        return new ViewCastInfo(false, endPoint, viewRadius, globalAngle);
     }
 
     public float GetViewRadius()
