@@ -16,6 +16,14 @@ public class PlayerDetection : MonoBehaviour
     [Tooltip("The object that the FOV mesh can be assigned to.")]
     [SerializeField] private MeshFilter viewMeshFilter;
 
+    // Add: reference to the MeshRenderer used to render the view cone
+    [Tooltip("Optional: MeshRenderer for the FOV mesh. If null, will be taken from the MeshFilter's GameObject.")]
+    [SerializeField] private MeshRenderer viewMeshRenderer;
+
+    // Add: color for the view cone (use a material/shader that supports color & transparency)
+    [Tooltip("Color of the view cone. Ensure the Material uses a shader that supports _Color (e.g. Standard with Rendering Mode = Transparent).")]
+    [SerializeField] private Color viewColor = new Color(1f, 0f, 0f, 0.35f);
+
     private Mesh viewMesh;
 
     private Collider myCollider;
@@ -45,6 +53,18 @@ public class PlayerDetection : MonoBehaviour
         viewMesh.name = "Field of View";
 
         viewMeshFilter.mesh = viewMesh;
+
+        // Ensure we have a MeshRenderer reference
+        if (viewMeshRenderer == null && viewMeshFilter != null)
+        {
+            viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
+        }
+
+        // Apply the configured color to the material instance (creates an instance)
+        if (viewMeshRenderer != null && viewMeshRenderer.material != null)
+        {
+            viewMeshRenderer.material.color = viewColor;
+        }
     }
     private void LateUpdate()
     {
@@ -208,5 +228,42 @@ public class PlayerDetection : MonoBehaviour
 
             this.angle = angle;
         }
+    }
+
+    // Add: runtime API to change the view cone color
+    public void SetViewColor(Color color)
+    {
+        viewColor = color;
+
+        if (viewMeshRenderer == null && viewMeshFilter != null)
+        {
+            viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
+        }
+
+        if (viewMeshRenderer != null && viewMeshRenderer.material != null)
+        {
+            viewMeshRenderer.material.color = viewColor;
+        }
+    }
+
+    // Add: apply color when component is enabled at runtime
+    private void OnEnable()
+    {
+        SetViewColor(viewColor);
+    }
+
+    // Add: apply color immediately in the editor when the value changes in the Inspector
+    private void OnValidate()
+    {
+        // Avoid calling during domain reloads when serialization may be incomplete.
+        if (!Application.isPlaying)
+        {
+            // Ensure references exist before trying to set color
+            if (viewMeshFilter != null && viewMeshRenderer == null)
+            {
+                viewMeshRenderer = viewMeshFilter.GetComponent<MeshRenderer>();
+            }
+        }
+        SetViewColor(viewColor);
     }
 }
