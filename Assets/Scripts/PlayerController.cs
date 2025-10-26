@@ -140,8 +140,6 @@ public class PlayerController : MonoBehaviour
     }
 
         //TODO: crouch
-        //      -> crouching should cancel sprinting and the other way around
-        //      -> lower view when crouching
         //      -> go under low things when crouching (like repo)
     private void Crouch(InputAction.CallbackContext input)
     {
@@ -253,7 +251,7 @@ public class PlayerController : MonoBehaviour
             //after scaling, adjust position so feet remain on the ground.
             //TODO: make this work on any y
             float feetY = myCollider.bounds.extents.y;
-            transform.position = new Vector3(transform.position.x, feetY, transform.position.z);
+            transform.position = new Vector3(transform.position.x, transform.position.y - feetY, transform.position.z);
 
             yield return null;
         }

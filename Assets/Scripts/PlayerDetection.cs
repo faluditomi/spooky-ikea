@@ -18,6 +18,8 @@ public class PlayerDetection : MonoBehaviour
 
     private Mesh viewMesh;
 
+    private Collider myCollider;
+
     [Tooltip("Increasing this number makes the FOV cone smoother at the price of a some performance.")]
     [SerializeField] private float meshResolution = 1f;
     [Tooltip("The distance from which the guard can spot the player. Represented visaully in the scene.")]
@@ -30,6 +32,8 @@ public class PlayerDetection : MonoBehaviour
     private void Awake()
     {
         myStateMachine = GetComponent<GuardStateMachine>();
+
+        myCollider = GetComponent<Collider>();
     }
 
     private void Start()
@@ -143,16 +147,22 @@ public class PlayerDetection : MonoBehaviour
     private ViewCastInfo ViewCast(float globalAngle)
     {
         Vector3 direction = VectorFromAngle(globalAngle, true);
-
         RaycastHit hit;
+        Vector3 feetPos = new Vector3(transform.position.x, transform.position.y - myCollider.bounds.extents.y, transform.position.z);
 
-        if(Physics.Raycast(transform.position, direction, out hit, viewRadius, obstacleMask))
+        if(Physics.Raycast(feetPos, direction, out hit, viewRadius, obstacleMask))
         {
-            return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+            Vector3 adjustedHitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+            return new ViewCastInfo(true, adjustedHitPoint, hit.distance, globalAngle);
         }
         else
         {
-            return new ViewCastInfo(false, transform.position + direction * viewRadius, viewRadius, globalAngle);
+            Vector3 endPoint = new Vector3(
+                feetPos.x + direction.x * viewRadius,
+                transform.position.y,
+                feetPos.z + direction.z * viewRadius
+            );
+            return new ViewCastInfo(false, endPoint, viewRadius, globalAngle);
         }
     }
 
