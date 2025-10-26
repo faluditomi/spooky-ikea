@@ -8,6 +8,7 @@ public class MenusController : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject optionsPanel;
     [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private PlayerController playerController;
 
     private bool isPaused;
 
@@ -62,6 +63,11 @@ public class MenusController : MonoBehaviour
         isPaused = true;
 
         Time.timeScale = 0;
+
+        playerController.LockMovement(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void ResumeGame()
@@ -75,6 +81,11 @@ public class MenusController : MonoBehaviour
         isPaused = false;
 
         Time.timeScale = 1;
+
+        playerController.UnlockMovement();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public void OpenOptionsMenu()
