@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float crouchHeightMultiplier = 0.3f;
     [Tooltip("How long (seconds) the crouch/stand transition should take.")]
     [SerializeField] private float crouchTransitionDuration = 0.2f;
+    [Tooltip("Layers that block the player from standing up")]
+    [SerializeField] private LayerMask standBlockLayers;
 
     // Internal state for smooth transitions
     private Coroutine crouchCoroutine;
@@ -128,7 +130,7 @@ public class PlayerController : MonoBehaviour
 
     private void Sprint(InputAction.CallbackContext input)
     {
-        if(isMovementLocked) return;
+        if(isMovementLocked || myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Crouching)) return;
         if (input.performed)
         {
             myStateMachine.SetState(PlayerStateMachine.PlayerState.Sprinting);
@@ -139,8 +141,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-        //TODO: crouch
-        //      -> go under low things when crouching (like repo)
     private void Crouch(InputAction.CallbackContext input)
     {
         if(isMovementLocked) return;
@@ -150,11 +150,11 @@ public class PlayerController : MonoBehaviour
             {
                 if (myStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Crouching))
                 {
-                    myStateMachine.SetState(PlayerStateMachine.PlayerState.Idle);
+                    StopCrouching();
                 }
                 else
                 {
-                    myStateMachine.SetState(PlayerStateMachine.PlayerState.Crouching);
+                    StartCrouching();
                 }
             }
         }
@@ -162,11 +162,11 @@ public class PlayerController : MonoBehaviour
         {
             if(input.performed)
             {
-                myStateMachine.SetState(PlayerStateMachine.PlayerState.Crouching);
+                StartCrouching();
             }
             else if(input.canceled)
             {
-                myStateMachine.SetState(PlayerStateMachine.PlayerState.Idle);
+                StopCrouching();
             }
         }
     }
@@ -212,7 +212,7 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 targetScale = new Vector3(originalLocalScale.x, originalLocalScale.y * crouchHeightMultiplier, originalLocalScale.z);
-        crouchCoroutine = StartCoroutine(ScaleTo(targetScale, crouchTransitionDuration, true));
+        crouchCoroutine = StartCoroutine(ScaleTo(targetScale, crouchTransitionDuration, false));
     }
 
     public void StopCrouching()
@@ -223,11 +223,23 @@ public class PlayerController : MonoBehaviour
             crouchCoroutine = null;
         }
 
-        crouchCoroutine = StartCoroutine(ScaleTo(originalLocalScale, crouchTransitionDuration, false));
+        crouchCoroutine = StartCoroutine(ScaleTo(originalLocalScale, crouchTransitionDuration, true));
     }
 
     private IEnumerator ScaleTo(Vector3 targetScale, float duration, bool targetIsCrouched)
     {
+        if (targetIsCrouched)
+        {
+            // Cast a ray from the player's head upward to check for obstacles
+            RaycastHit hit;
+            yield return new WaitUntil(() => !Physics.Raycast(transform.position, Vector3.up, out hit, 2f, standBlockLayers));
+            myStateMachine.SetState(PlayerStateMachine.PlayerState.Idle);
+        }
+        else
+        {
+            myStateMachine.SetState(PlayerStateMachine.PlayerState.Crouching);
+        }
+
         Vector3 startScale = transform.localScale;
 
         // Get initial collider bounds before scaling
