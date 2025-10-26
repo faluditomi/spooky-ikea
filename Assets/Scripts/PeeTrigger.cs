@@ -12,6 +12,7 @@ public class PeeTrigger : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [SerializeField] private TMP_Text objectiveText;
     [SerializeField] private GameObject objectivePanel;
+    [SerializeField] private Animator violinman;
     private AIConversant aiConversant;
 
     private GuardSpawner guardSpawner;
@@ -63,6 +64,7 @@ public class PeeTrigger : MonoBehaviour
 
         peeParticles.Play();
         playerController.LockMovement(false);
+        GetComponent<Animator>().SetTrigger("go");
         AudioManager.instance.PlayOneShot(FMODEvents.instance.playerPeeing, transform.position);
         EventInstance musicPhase01 = AudioManager.instance.CreateEventInstance(FMODEvents.instance.musicPhase01);
         AudioManager.instance.FadeOutMusic(musicPhase01);
