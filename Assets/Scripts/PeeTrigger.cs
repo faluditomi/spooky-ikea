@@ -78,6 +78,7 @@ public class PeeTrigger : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         EventEmitters.instance.musicPhase01.Stop();
+        musicPhase01.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
         AudioManager.instance.SetGlobalParameter("Distance", 100f, true);
         EventInstance musicPhase02 = AudioManager.instance.CreateEventInstance(FMODEvents.instance.musicPhase02);
         AudioManager.instance.SetParameter(musicPhase02, "Fade", 0f, true);

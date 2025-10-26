@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{b2656a7c-b4a6-4ecc-b0e2-d0152bbb397e}">
+		<property name="name">
+			<value>Distance</value>
+		</property>
+		<relationship name="folder">
+			<destination>{a9492709-1bee-461a-962e-3daf91381e0d}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{c2257bc4-7e79-413f-b8e8-bb99578376ec}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{c2257bc4-7e79-413f-b8e8-bb99578376ec}">
+		<property name="maximum">
+			<value>100</value>
+		</property>
+		<property name="isGlobal">
+			<value>true</value>
+		</property>
+		<property name="initialValue">
+			<value>100</value>
+		</property>
+		<property name="isExposedRecursively">
+			<value>false</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{6c95aa46-edcd-4b52-877e-6b234cc25f06}</destination>
+		</relationship>
+	</object>
+	<object class="SeekModulator" id="{6c95aa46-edcd-4b52-877e-6b234cc25f06}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>cursorPosition</value>
+		</property>
+		<property name="speedAscending">
+			<value>0.25999999046325684</value>
+		</property>
+		<property name="asymmetric">
+			<value>true</value>
+		</property>
+	</object>
+</objects>
