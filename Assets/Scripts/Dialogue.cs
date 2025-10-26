@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 [CreateAssetMenu(fileName = "New Dialogue", menuName = "Dialogue", order = 0)]
 public class Dialogue : ScriptableObject, ISerializationCallbackReceiver
@@ -141,10 +144,14 @@ public class Dialogue : ScriptableObject, ISerializationCallbackReceiver
         return newNode;
     }
 
+    public const float backgroundSize = 50;
+    public const float verticalSpacing = 100f;
+    public const float horizontalSpacing = 250f;
+
     private Vector2 FindNextAvailablePosition(float columnX)
     {
-        const float gridSize = DialogueEditor.backgroundSize;
-        const float verticalSpacing = DialogueEditor.verticalSpacing;
+        const float gridSize = backgroundSize;
+        
         const float startY = 0f;
 
         var occupiedSnappedYPositions = new HashSet<float>();
@@ -186,7 +193,7 @@ public class Dialogue : ScriptableObject, ISerializationCallbackReceiver
 
         if(parent)
         {
-            float childColumnX = parent.GetRect().position.x + DialogueEditor.horizontalSpacing;
+            float childColumnX = parent.GetRect().position.x + horizontalSpacing;
 
             Vector2 finalPosition = FindNextAvailablePosition(childColumnX);
 
@@ -200,7 +207,7 @@ public class Dialogue : ScriptableObject, ISerializationCallbackReceiver
 
         return newNode;
     }
-#endif
+    #endif
 
     public void OnBeforeSerialize()
     {
