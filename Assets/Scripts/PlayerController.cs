@@ -230,9 +230,9 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 startScale = transform.localScale;
 
-        // Cache local-space collider offset (bottom relative to transform)
-        Vector3 localBottomOffset = myCollider.bounds.center - transform.position;
-        localBottomOffset.y -= myCollider.bounds.extents.y;
+        // Get initial collider bounds before scaling
+        float startExtentY = myCollider.bounds.extents.y;
+        float startBottomY = myCollider.bounds.center.y - startExtentY;
 
         if (Mathf.Approximately(duration, 0f))
         {
@@ -246,33 +246,33 @@ public class PlayerController : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
+
+            // Smoothstep easing
             float eased = t * t * (3f - 2f * t);
 
+            // Interpolate scale
             Vector3 newScale = Vector3.Lerp(startScale, targetScale, eased);
             transform.localScale = newScale;
 
-            // Recalculate current collider bottom
+            // --- Keep feet grounded ---
+            // Compute new collider bottom after scaling
             float newExtentY = myCollider.bounds.extents.y;
             float newBottomY = myCollider.bounds.center.y - newExtentY;
 
-            // Target bottom position in world space
-            float targetBottomY = transform.position.y + localBottomOffset.y;
-
-            // Correct Y position to keep feet on the ground
-            float deltaY = targetBottomY - newBottomY;
-            transform.position += new Vector3(0f, deltaY, 0f);
+            // Compute the vertical offset needed to keep the feet in place
+            float bottomDelta = startBottomY - newBottomY;
+            transform.position += new Vector3(0f, bottomDelta, 0f);
 
             yield return null;
         }
 
         transform.localScale = targetScale;
 
-        // Final correction
+        // Final correction for any accumulated floating-point error
         float finalExtentY = myCollider.bounds.extents.y;
         float finalBottomY = myCollider.bounds.center.y - finalExtentY;
-        float targetFinalBottomY = transform.position.y + localBottomOffset.y;
-        float finalDeltaY = targetFinalBottomY - finalBottomY;
-        transform.position += new Vector3(0f, finalDeltaY, 0f);
+        float finalDelta = startBottomY - finalBottomY;
+        transform.position += new Vector3(0f, finalDelta, 0f);
 
         crouchCoroutine = null;
     }
