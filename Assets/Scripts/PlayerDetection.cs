@@ -35,7 +35,9 @@ public class PlayerDetection : MonoBehaviour
     [Tooltip("The angle at which the guard sees in front of itself. Represented visually in the scene by a red circle.")]
     [SerializeField] [Range(0,360)] private float viewAngle = 90;
     [Tooltip("The distance from which the guard can hear the player sprint. Represented visaully in the scene by a blue circle.")]
-    [SerializeField] private float hearingRadius = 15f;
+    [SerializeField] private float hearingRunningRadius = 15f;
+    [Tooltip("The distance from which the guard can hear the player sneak. Represented visaully in the scene by a green circle.")]
+    [SerializeField] private float hearingSneakingRadius = 5f;
 
     private void Awake()
     {
@@ -91,7 +93,7 @@ public class PlayerDetection : MonoBehaviour
         return false;
     }
     
-    public bool IsPlayerMakingNoise()
+    public bool IsPlayerMakingNoiseRun()
     {
         if(!playerStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Sprinting))
         {
@@ -100,8 +102,21 @@ public class PlayerDetection : MonoBehaviour
         
         float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
 
-        return distanceToPlayer < hearingRadius;
+        return distanceToPlayer < hearingRunningRadius;
     }
+    
+    public bool IsPlayerMakingNoiseSneak()
+    {
+        if(!playerStateMachine.GetCurrentState().Equals(PlayerStateMachine.PlayerState.Sneaking))
+        {
+            return false;
+        }
+        
+        float distanceToPlayer = Vector3.Distance(transform.position, myStateMachine.GetPlayer().position);
+
+        return distanceToPlayer < hearingSneakingRadius;
+    }
+
 
     //Returns the vector that is at a certain angle from the guard.
     public Vector3 VectorFromAngle(float angleInDegrees, bool isAngleGlobal)
@@ -203,9 +218,14 @@ public class PlayerDetection : MonoBehaviour
         return viewAngle;
     }
 
-    public float GetHearingRadius()
+    public float GetHearingRadiusRun()
     {
-        return hearingRadius;
+        return hearingRunningRadius;
+    }
+
+    public float GetHearingRadiusSneak()
+    {
+        return hearingSneakingRadius;
     }
 
     //A struct to hold the necessary info about the vertices of our mesh.

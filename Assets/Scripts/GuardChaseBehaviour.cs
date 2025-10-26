@@ -63,7 +63,7 @@ public class GuardChaseBehaviour : MonoBehaviour
 
     private void ChasePlayer()
     {
-        if(myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoise())
+        if(myPlayerDetection.IsPlayerInSight() || myPlayerDetection.IsPlayerMakingNoiseRun() || myPlayerDetection.IsPlayerMakingNoiseSneak())
         {
             TargetPlayer();
         }
