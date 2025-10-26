@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using FMODUnity;
+using FMOD.Studio;
 
 public class PeeTrigger : MonoBehaviour
 {
@@ -55,14 +57,19 @@ public class PeeTrigger : MonoBehaviour
 
         peeParticles.Play();
         playerController.LockMovement(false);
-        //pee sound
+        AudioManager.instance.PlayOneShot(FMODEvents.instance.playerPeeing, transform.position);
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(6f);
 
         peeParticles.Stop();
+        EventEmitters.instance.musicPhase01.Stop();
 
         yield return new WaitForSeconds(1.5f);
 
+        AudioManager.instance.SetGlobalParameter("Distance", 100f, ignoreSeekSpeed: true);
+        AudioManager.instance.InitializeMusic(FMODEvents.instance.musicPhase02);
+        
+        
         playerGameObject.transform.position = new Vector3(0f, 1f, 4f);
         guardSpawner.InitialiseGuardSpawner();
         playerController.UnlockMovement();

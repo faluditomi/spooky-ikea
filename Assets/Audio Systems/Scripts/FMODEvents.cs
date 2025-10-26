@@ -12,33 +12,33 @@ public class FMODEvents : MonoBehaviour
     public static FMODEvents instance { get; private set; }
 
     [field: Header("Ambience")]
-    [field: SerializeField] public EventReference city { get; private set; }
-    [field: SerializeField] public EventReference cityMenu { get; private set; }
-
-
+    [field: SerializeField] public EventReference roomtone { get; private set; }
+    
 
     [field: Header("Music")]
-    [field: SerializeField] public EventReference music { get; private set; }
-    [field: SerializeField] public EventReference menuMusic { get; private set; }
-
+    [field: SerializeField] public EventReference musicMenu { get; private set; }
+    [field: SerializeField] public EventReference musicPhase01 { get; private set; }
+    [field: SerializeField] public EventReference musicPhase02 { get; private set; }
 
 
     [field: Header("Player SFX")]
-    [field: SerializeField] public EventReference carHit { get; private set; }
-    [field: SerializeField] public EventReference carHonk { get; private set; }
-    [field: SerializeField] public EventReference carEngine { get; private set; }
-    [field: SerializeField] public EventReference carWindUp { get; private set; }
+    [field: SerializeField] public EventReference playerFootstep { get; private set; }
+    [field: SerializeField] public EventReference playerPeeing { get; private set; }
 
 
     [field: Header("NPC SFX")]
-    [field: SerializeField] public EventReference robotDeathScream { get; private set; }
-    [field: SerializeField] public EventReference npcHonk { get; private set; }
-    [field: SerializeField] public EventReference drone { get; private set; }
+    [field: SerializeField] public EventReference trollFootstep { get; private set; }
+    [field: SerializeField] public EventReference trollNotice { get; private set; }
+
+
+    [field: Header("Envrionment")]
+    [field: SerializeField] public EventReference toiletOpen { get; private set; }
 
 
     [field: Header("UI")]
-    [field: SerializeField] public EventReference pickUp { get; private set; }
-    [field: SerializeField] public EventReference dropOff { get; private set; }
+    [field: SerializeField] public EventReference mouseHover { get; private set; }
+    [field: SerializeField] public EventReference mouseClick { get; private set; }
+    [field: SerializeField] public EventReference valueChange { get; private set; }
 
 
     // Basically makes sure that only one instance of this class, will be taken into account,

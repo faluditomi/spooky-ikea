@@ -36,13 +36,13 @@ public class AudioManager : MonoBehaviour
         switch (currentScene)
         {
             case "Main Menu":
-                InitializeMusic(FMODEvents.instance.menuMusic);
-                InitializeAmbience(FMODEvents.instance.cityMenu);
+                InitializeMusic(FMODEvents.instance.musicMenu);
+                //InitializeAmbience(FMODEvents.instance.cityMenu);
                 break;
 
-            case "Map":
-                InitializeMusic(FMODEvents.instance.music);
-                InitializeAmbience(FMODEvents.instance.city);
+            //case "Game too 2":
+                InitializeMusic(FMODEvents.instance.musicPhase01);
+                InitializeAmbience(FMODEvents.instance.roomtone);
                 break;
 
 
@@ -50,13 +50,13 @@ public class AudioManager : MonoBehaviour
 
     }
 
-    private void InitializeMusic(EventReference musicEventReference)
+    public void InitializeMusic(EventReference musicEventReference)
     {
         musicEventInstance = CreateEventInstance(musicEventReference);
         musicEventInstance.start();
     }
 
-    private void InitializeAmbience(EventReference ambienceEventReferece)
+    public void InitializeAmbience(EventReference ambienceEventReferece)
     {
         ambienceEventInstance = CreateEventInstance(ambienceEventReferece);
         ambienceEventInstance.start();
@@ -66,6 +66,17 @@ public class AudioManager : MonoBehaviour
     {
         ambienceEventInstance.setParameterByName(parameterName, parameterValue);
     }
+
+    public void SetParameter(EventInstance eventInstance, string parameterName, float value)
+    {
+        eventInstance.setParameterByName(parameterName, value);
+    }
+
+    public void SetGlobalParameter(string parameterName, float value)
+    {
+        RuntimeManager.StudioSystem.setParameterByName(parameterName, value);
+    }
+
 
     public void SetMusicArea(MusicArea area)
     {
@@ -89,6 +100,32 @@ public class AudioManager : MonoBehaviour
         StudioEventEmitter emitter = emitterGameObject.GetComponent<StudioEventEmitter>();
         emitter.EventReference = eventReference;
         eventEmitters.Add(emitter);
+        return emitter;
+    }
+
+    public StudioEventEmitter PlayAttached(EventReference eventReference, GameObject emitterGameObject)
+    {
+        // Get the emitter component
+        StudioEventEmitter emitter = emitterGameObject.GetComponent<StudioEventEmitter>();
+
+        // Add the component if it does not exist
+        if (emitter == null)
+        {
+            emitter = emitterGameObject.AddComponent<StudioEventEmitter>();
+        }
+
+        // Set the event reference
+        emitter.EventReference = eventReference;
+
+        // Add to the list for cleanup
+        if (!eventEmitters.Contains(emitter))
+        {
+            eventEmitters.Add(emitter);
+        }
+
+        // Play the sound
+        emitter.Play();
+
         return emitter;
     }
 

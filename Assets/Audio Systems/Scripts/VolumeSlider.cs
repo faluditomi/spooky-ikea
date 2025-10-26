@@ -19,13 +19,13 @@ public class VolumeSlider : MonoBehaviour
     [Header("Type")]
     [SerializeField] private VolumeType volumeType;
 
-    private Slider volumeSlider;
+    private UnityEngine.UI.Slider volumeSlider;
 
     private void Awake()
     {
         // We get the Slider class componenent of this slider GameObject (this),
         // and store it in the volumeSlider variable.
-        volumeSlider = this.GetComponentInChildren<Slider>();
+        volumeSlider = this.GetComponentInChildren<UnityEngine.UI.Slider>();
 
         // TLDR: Saved volume settings are initialized.
         // We check to see if there is any data saved in the PlayerPrefs class, 

@@ -158,7 +158,7 @@ public class DungeonGenerator : MonoBehaviour
 
         if (numBranches > 2 && validBranchCount <= 2)
         {
-            SceneManager.LoadScene("Game too");
+            SceneManager.LoadScene("Game too 2");
 
             yield break;
         }
@@ -182,6 +182,8 @@ public class DungeonGenerator : MonoBehaviour
         playerController.LockMovement(true);
 
         //load sounds here?
+        AudioManager.instance.InitializeAmbience(FMODEvents.instance.roomtone);
+        AudioManager.instance.InitializeEventEmitter(FMODEvents.instance.musicPhase01, GameObject.Find("Fountain").gameObject);
     }
 
     private void LoadingScreenDone()
