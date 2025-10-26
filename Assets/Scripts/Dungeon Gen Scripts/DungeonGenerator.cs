@@ -46,8 +46,6 @@ public class DungeonGenerator : MonoBehaviour
     public List<Tile> generatedTiles = new List<Tile>();
     private List<Connector> availableConnectors = new List<Connector>();
 
-    //private GameObject goPlayer;
-
     [SerializeField] private PlayerController playerController;
 
     private Transform tileFrom, tileTo, tileRoot;
@@ -61,18 +59,11 @@ public class DungeonGenerator : MonoBehaviour
     private void Start()
     {
         LoadingScreen();
-
-        //lock player movement and camera
-
-        //goPlayer = GameObject.FindWithTag("Player");
-
         StartCoroutine(DungeonBuildCoroutine());
     }
 
     private IEnumerator DungeonBuildCoroutine()
     {
-        //goPlayer.SetActive(false);
-
         GameObject goContainer = new GameObject("Main Path");
 
         container = goContainer.transform;
@@ -183,8 +174,6 @@ public class DungeonGenerator : MonoBehaviour
         LoadingScreenDone();
 
         yield return null;
-
-        //goPlayer.SetActive(true);
     }
 
     private void LoadingScreen()
@@ -485,12 +474,6 @@ public class DungeonGenerator : MonoBehaviour
         GameObject goTile = Instantiate(startPrefabs[index], Vector3.zero, Quaternion.identity, container) as GameObject;
 
         goTile.name = "Start Room";
-
-        float yRot = Random.Range(0, 4) * 90f;
-
-        goTile.transform.Rotate(0, yRot, 0);
-
-        //goPlayer.transform.LookAt(goTile.GetComponentInChildren<Connector>().transform);
 
         generatedTiles.Add(new Tile(goTile.transform, null));
 

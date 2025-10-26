@@ -60,9 +60,10 @@ public class PeeTrigger : MonoBehaviour
         yield return new WaitForSeconds(3f);
 
         peeParticles.Stop();
+
+        yield return new WaitForSeconds(1.5f);
+
         playerGameObject.transform.position = new Vector3(0f, 1f, 4f);
-        //generate map
-        //dungeonGenerator.GenerateDungeon();
         guardSpawner.InitialiseGuardSpawner();
         playerController.UnlockMovement();
         premadeMap.SetActive(false);

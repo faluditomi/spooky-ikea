@@ -26,12 +26,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8913e1fe684e0f444bc4e19729d1fd72, type: 3}
   m_Name: ee242599-6b06-4b2f-91ff-0bbf9c77fde4
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::DialogueNode
-  dialogueText: Pee?
+  dialogueText: Press E to Pee?
   children: []
   rect:
     serializedVersion: 2
     x: 0
-    y: 0
+    y: -0
     width: 200
     height: 100
   voiceAudioClip: {fileID: 0}

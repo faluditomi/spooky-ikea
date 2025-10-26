@@ -16,7 +16,11 @@ public class ToiletAnim : MonoBehaviour
         if(other.CompareTag("Player"))
         {
             animator.SetTrigger("ToiletTrigger");
-            aiConversant.StartDialogue();
+
+            if(aiConversant != null)
+            {
+                aiConversant.StartDialogue();
+            }
         }
     }
 
@@ -24,7 +28,10 @@ public class ToiletAnim : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            aiConversant.QuitDialogue();
+            if(aiConversant != null)
+            {
+                aiConversant.QuitDialogue();
+            }
         }
     }
 }

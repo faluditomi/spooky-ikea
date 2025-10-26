@@ -1,5 +1,28 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5115298533945720582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8913e1fe684e0f444bc4e19729d1fd72, type: 3}
+  m_Name: 7ddf01cd-ead5-42fa-9739-22e964b70420
+  m_EditorClassIdentifier: Assembly-CSharp-firstpass::DialogueNode
+  dialogueText: This is not a real toilet...
+  children: []
+  rect:
+    serializedVersion: 2
+    x: 0
+    y: 300
+    width: 200
+    height: 100
+  voiceAudioClip: {fileID: 0}
+  triggerActions: []
+  isRootNode: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16,6 +39,7 @@ MonoBehaviour:
   - {fileID: 3946679775674373871}
   - {fileID: 1680773439409963822}
   - {fileID: 3898084939692383169}
+  - {fileID: -5115298533945720582}
 --- !u!114 &1680773439409963822
 MonoBehaviour:
   m_ObjectHideFlags: 0
