@@ -83,7 +83,7 @@ public class GuardChaseBehaviour : MonoBehaviour
 
         if(other.CompareTag("Player"))
         {
-            SceneManager.LoadScene("Main Menu");
+            SceneManager.LoadScene("Game too");
         }
     }
     private IEnumerator MenacingDelayBehaviour()
