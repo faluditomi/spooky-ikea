@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class PeeTrigger : MonoBehaviour
 {
-    [SerializeField] private GameObject peePrompt;
     [SerializeField] private GameObject playerGameObject;
     [SerializeField] private GameObject premadeMap;
     [SerializeField] private ParticleSystem peeParticles;
@@ -48,9 +47,8 @@ public class PeeTrigger : MonoBehaviour
     }
 
     private IEnumerator PeeCoroutine()
-    {        
+    {
         //unzip sound
-
         yield return new WaitForSeconds(0.5f);
 
         peeParticles.Play();
