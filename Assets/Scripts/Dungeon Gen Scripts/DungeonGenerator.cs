@@ -158,7 +158,7 @@ public class DungeonGenerator : MonoBehaviour
 
         if (numBranches > 2 && validBranchCount <= 2)
         {
-            SceneManager.LoadScene("Game too 2");
+            SceneManager.LoadScene("Game too");
 
             yield break;
         }

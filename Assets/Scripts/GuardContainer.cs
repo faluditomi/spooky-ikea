@@ -41,6 +41,7 @@ public class GuardContainer : MonoBehaviour
     
     public void DistanceToClosestEnemy()
     {
+        Debug.Log("called distance calc");
         if (guards.Count == 0)
         {
             return;
@@ -62,12 +63,14 @@ public class GuardContainer : MonoBehaviour
             //SET THE DISTANCE VALUE TO THIS BELOW
             // Mathf.Infinity;
             AudioManager.instance.SetGlobalParameter("Distance", Mathf.Infinity, false);
+        Debug.Log("Mathf.Infinity");
         }
         else
         {
             //SET THE DISTANCE VALUE TO THIS BELOW
             // Mathf.Sqrt(minSqr);
             AudioManager.instance.SetGlobalParameter("Distance", Mathf.Sqrt(minSqr), false);
+        Debug.Log(Mathf.Sqrt(minSqr));
 
         }
     }
