@@ -68,10 +68,10 @@ public class PlayerDetection : MonoBehaviour
             viewMeshRenderer.material.color = viewColor;
         }
     }
-    private void LateUpdate()
-    {
-        DrawFieldOfViewCone();
-    }
+    //private void LateUpdate()
+    //{
+    //    DrawFieldOfViewCone();
+    //}
 
     public bool IsPlayerInSight()
     {
